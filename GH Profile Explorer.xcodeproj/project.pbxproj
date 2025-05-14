@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4891D5F02DD493C600F64897 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 4891D5EF2DD493C600F64897 /* Kingfisher */; };
+		4891D5F32DD493D600F64897 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 4891D5F22DD493D600F64897 /* Nimble */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4891D5D22DD4929B00F64897 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4891D5F02DD493C600F64897 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4891D5F32DD493D600F64897 /* Nimble in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,7 @@
 			);
 			name = "GH Profile Explorer";
 			packageProductDependencies = (
+				4891D5EF2DD493C600F64897 /* Kingfisher */,
 			);
 			productName = "GH Profile Explorer";
 			productReference = 4891D5C32DD4929900F64897 /* GH Profile Explorer.app */;
@@ -135,6 +143,7 @@
 			);
 			name = "GH Profile ExplorerTests";
 			packageProductDependencies = (
+				4891D5F22DD493D600F64897 /* Nimble */,
 			);
 			productName = "GH Profile ExplorerTests";
 			productReference = 4891D5D12DD4929B00F64897 /* GH Profile ExplorerTests.xctest */;
@@ -195,6 +204,10 @@
 			);
 			mainGroup = 4891D5BA2DD4929900F64897;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				4891D5F12DD493D600F64897 /* XCRemoteSwiftPackageReference "Nimble" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4891D5C42DD4929900F64897 /* Products */;
 			projectDirPath = "";
@@ -593,6 +606,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
+		4891D5F12DD493D600F64897 /* XCRemoteSwiftPackageReference "Nimble" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Nimble.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4891D5EF2DD493C600F64897 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		4891D5F22DD493D600F64897 /* Nimble */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4891D5F12DD493D600F64897 /* XCRemoteSwiftPackageReference "Nimble" */;
+			productName = Nimble;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4891D5BB2DD4929900F64897 /* Project object */;
 }

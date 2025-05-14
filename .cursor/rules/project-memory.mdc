@@ -1,0 +1,153 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+🧪 Tarea Técnica Multiplataforma – GitHub Profile Explorer
+🎯 Objetivo
+Desarrollar una aplicación nativa y multiplataforma (iOS, iPadOS, macOS y tvOS) que permita buscar un perfil de GitHub y visualizar sus datos básicos (nombre, foto) y sus repositorios con sus respectivos lenguajes de programación.
+
+📦 Estructura del Proyecto
+Organiza el proyecto en módulos usando Swift Package Manager (SPM) con la siguiente arquitectura Clean MVVM Modular:
+
+
+GitHubExplorer/
+├── Presentation/
+│   ├── iOS/
+│   ├── macOS/
+│   ├── tvOS/
+│   └── iPadOS/
+├── Domain/
+│   ├── Entities/
+│   ├── UseCases/
+│   └── Interfaces/
+├── Data/
+│   ├── API/
+│   ├── Repositories/
+│   └── Mappers/
+├── Resources/
+├── SharedUI/
+├── Tests/
+└── App/
+🔧 Tecnologías
+Swift 6 y Swift Concurrency (async/await)
+
+SwiftUI con vistas específicas por plataforma
+
+Kingfisher para carga y caché de imágenes
+
+Nimble + Quick para testing de lógica
+
+SPM como gestor de dependencias
+
+Sin uso de Combine
+
+🧠 Requisitos Funcionales
+1. Pantalla de Inicio
+Campo de texto para ingresar el nombre de usuario
+
+Botón de búsqueda
+
+Validación del input (no vacío, sin espacios)
+
+2. Pantalla de Perfil
+Nombre de usuario
+
+Foto de perfil (usar Kingfisher)
+
+Lista de repositorios:
+
+Nombre del repositorio
+
+Lenguaje principal
+
+Botón para volver
+
+3. Manejo de Errores
+Alerta: "A network error has occurred. Check your Internet connection and try again later."
+
+Alerta usuario no encontrado: "User not found. Please enter another name"
+
+📱 Interfaces por Plataforma (creatividad + adaptación)
+📱 iOS
+UI vertical con NavigationStack
+
+Adaptación a tamaño compacto (iPhone SE) y extendido (Pro Max)
+
+💻 macOS
+Pantalla dividida (Split View) con Sidebar
+
+Uso de List con estilo de macOS
+
+Atajos de teclado para búsqueda (⌘F)
+
+📺 tvOS
+Navegación con control remoto
+
+Botón de búsqueda grande y campo enfocado por defecto
+
+UI con foco animado y repositorios navegables con el mando
+
+🧾 iPadOS
+Diseño adaptable con NavigationSplitView
+
+Soporte para multitarea (slide-over / split view)
+
+Diseño responsive usando GeometryReader y adaptive stacks
+
+🧱 Arquitectura y Capas
+🧩 Domain
+User y Repository como entidades
+
+UserRepositoryProtocol con método fetchUserRepos(username:) async throws -> [Repository]
+
+FetchUserReposUseCase
+
+🔌 Data
+Implementación concreta de UserRepositoryProtocol
+
+Llamadas a https://api.github.com/users/{username}/repos
+
+Conversión JSON → modelo de dominio
+
+Manejo de errores HTTP 404 y otros
+
+🎨 Presentation
+Cada plataforma tendrá su propia implementación:
+
+
+protocol UserProfileViewModelProtocol: ObservableObject {
+    var state: ViewState { get }
+    func fetchUserRepos(for username: String)
+}
+ViewState: .idle, .loading, .loaded(User, [Repository]), .error(String)
+
+UserProfileViewModel: capa intermedia entre vista y caso de uso
+
+🧪 Tests
+✅ Unit Tests
+FetchUserReposUseCaseTests con mocks
+
+UserRepositoryTests para validar parsing, errores y resultados vacíos
+
+✅ UI Snapshot (opcional, si puedes añadirlo)
+Para vistas de cada plataforma (usando iOSSnapshotTestCase si decides incluirlo)
+
+✅ Nimble + Quick
+Para ViewModel y UseCases
+
+Ejemplo:
+
+
+describe("UserProfileViewModel") {
+    it("sets state to .error when user not found") {
+        // ...
+        expect(viewModel.state).toEventually(equal(.error("User not found...")))
+    }
+}
+🧠 Extra Challenge Creativo (Opcional)
+🎨 Agrega soporte para modo oscuro y modo accesibilidad
+📈 Muestra un gráfico de barras con número de repos por lenguaje (solo en macOS)
+Agrega soporte multiidioma 
+
+🎤 Añade búsqueda por voz en tvOS
