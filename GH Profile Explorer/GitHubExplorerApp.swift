@@ -14,8 +14,22 @@ struct GitHubExplorerApp: App {
             MacOSApp()
             #elseif os(tvOS)
             TVOSApp()
+            #elseif os(visionOS)
+            VisionOSApp()
             #endif
         }
+        
+        #if os(visionOS)
+        // Registro correcto del espacio inmersivo para visionOS
+        ImmersiveSpace(id: ImmersiveSpaceRegistration.immersiveSpaceID) {
+            ImmersiveGitHubSpace(
+                viewModel: VisionOSUserProfileViewModel(
+                    repositories: Repository.mockArray(),
+                    user: User.mock()
+                )
+            )
+        }
+        #endif
     }
 }
 
@@ -76,5 +90,20 @@ struct TVOSApp: View {
         )
         
         return TVOSHomeView(viewModel: viewModel)
+    }
+}
+
+struct VisionOSApp: View {
+    var body: some View {
+        let networkClient = NetworkClient()
+        let userRepository = UserRepository(networkClient: networkClient)
+        let fetchUserUseCase = FetchUserUseCase(repository: userRepository)
+        let fetchRepositoriesUseCase = FetchUserRepositoriesUseCase(repository: userRepository)
+        let viewModel = VisionOSUserProfileViewModel(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase
+        )
+        
+        return VisionOSSearchUserView(viewModel: viewModel)
     }
 } 

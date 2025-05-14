@@ -4,7 +4,7 @@ struct RepositoryResponse: Decodable {
     let id: Int
     let name: String
     let fullName: String
-    let owner: UserResponse
+    let owner: OwnerResponse
     let isPrivate: Bool
     let htmlUrl: String
     let description: String?
@@ -19,17 +19,10 @@ struct RepositoryResponse: Decodable {
     let topics: [String]?
     
     enum CodingKeys: String, CodingKey {
-        case id, name, owner, fork, description, language
-        case fullName = "full_name"
+        case id, name, fullName, owner, htmlUrl, description, fork, language
+        case forksCount, stargazersCount, watchersCount, defaultBranch
+        case createdAt, updatedAt, topics
         case isPrivate = "private"
-        case htmlUrl = "html_url"
-        case forksCount = "forks_count"
-        case stargazersCount = "stargazers_count"
-        case watchersCount = "watchers_count"
-        case defaultBranch = "default_branch"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case topics
     }
 }
 
@@ -39,7 +32,7 @@ final class RepositoryMapper {
             throw AppError.decodingError
         }
         
-        let user = try UserMapper.mapToDomain(response: response.owner)
+        let user = try UserMapper.mapOwnerToDomain(response: response.owner)
         
         return Repository(
             id: response.id,

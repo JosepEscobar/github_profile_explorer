@@ -14,9 +14,29 @@ public final class UserRepository: UserRepositoryProtocol {
     }
     
     public func fetchUserRepositories(username: String) async throws -> [Repository] {
-        let endpoint = Endpoint.userRepositories(username: username)
-        let response: [RepositoryResponse] = try await networkClient.fetch(endpoint: endpoint)
-        return try RepositoryMapper.mapToDomain(responses: response)
+        var allRepositories: [RepositoryResponse] = []
+        var page = 1
+        let perPage = 100
+        
+        while true {
+            let endpoint = Endpoint.userRepositories(
+                username: username,
+                page: page,
+                perPage: perPage
+            )
+            
+            let repositories: [RepositoryResponse] = try await networkClient.fetch(endpoint: endpoint)
+            
+            allRepositories.append(contentsOf: repositories)
+            
+            if repositories.count < perPage {
+                break
+            }
+            
+            page += 1
+        }
+        
+        return try RepositoryMapper.mapToDomain(responses: allRepositories)
     }
     
     public func searchUsers(query: String) async throws -> [User] {

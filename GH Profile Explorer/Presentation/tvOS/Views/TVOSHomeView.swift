@@ -105,10 +105,32 @@ struct TVOSHomeView: View {
                             viewModel.fetchUserProfile()
                         }
                     
-                    TVButton(icon: "magnifyingglass", title: "Buscar") {
+                    #if os(tvOS)
+                    SearchButton {
                         viewModel.fetchUserProfile()
                     }
                     .focused($focusedSection, equals: .search)
+                    #else
+                    Button {
+                        viewModel.fetchUserProfile()
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.headline)
+                            Text("Buscar")
+                                .font(.headline)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 25)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.blue)
+                        )
+                    }
+                    .buttonStyle(TVFocusableButtonStyle())
+                    .focused($focusedSection, equals: .search)
+                    #endif
                 }
                 .padding(.horizontal, 100)
                 
@@ -122,6 +144,17 @@ struct TVOSHomeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 30) {
                             ForEach(viewModel.featuredUsers, id: \.self) { username in
+                                #if os(tvOS)
+                                FeaturedUserButton(username: username) {
+                                    viewModel.selectFeaturedUser(username)
+                                }
+                                .focused($focusedSection, equals: .featured)
+                                .onChange(of: focusedSection) { oldValue, newValue in
+                                    if newValue == .featured {
+                                        viewModel.selectedSection = .featured
+                                    }
+                                }
+                                #else
                                 Button {
                                     viewModel.selectFeaturedUser(username)
                                 } label: {
@@ -162,6 +195,7 @@ struct TVOSHomeView: View {
                                         viewModel.selectedSection = .featured
                                     }
                                 }
+                                #endif
                             }
                         }
                         .padding(.horizontal)
@@ -178,16 +212,34 @@ struct TVOSHomeView: View {
                             
                             Spacer()
                             
+                            #if os(tvOS)
+                            ClearButton {
+                                viewModel.clearRecentSearches()
+                            }
+                            #else
                             Button("Limpiar") {
                                 viewModel.clearRecentSearches()
                             }
                             .foregroundColor(.blue)
+                            #endif
                         }
                         .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 20) {
                                 ForEach(viewModel.recentSearches, id: \.self) { username in
+                                    #if os(tvOS)
+                                    RecentSearchButton(username: username) {
+                                        viewModel.username = username
+                                        viewModel.fetchUserProfile()
+                                    }
+                                    .focused($focusedSection, equals: .recent)
+                                    .onChange(of: focusedSection) { oldValue, newValue in
+                                        if newValue == .recent {
+                                            viewModel.selectedSection = .recent
+                                        }
+                                    }
+                                    #else
                                     Button {
                                         viewModel.username = username
                                         viewModel.fetchUserProfile()
@@ -215,6 +267,7 @@ struct TVOSHomeView: View {
                                             viewModel.selectedSection = .recent
                                         }
                                     }
+                                    #endif
                                 }
                             }
                             .padding(.horizontal)
@@ -227,20 +280,67 @@ struct TVOSHomeView: View {
             
             // Menu footer
             HStack(spacing: 40) {
-                TVMenuButton(icon: "magnifyingglass", title: "Buscar") {
+                #if os(tvOS)
+                TVButtonCard(icon: "magnifyingglass", title: "Buscar") {
                     viewModel.selectedSection = .search
                     focusedSection = .search
                 }
                 
                 if case .loaded = viewModel.state {
-                    TVMenuButton(icon: "person", title: "Perfil") {
+                    TVButtonCard(icon: "person", title: "Perfil") {
                         viewModel.selectedSection = .profile
                     }
                     
-                    TVMenuButton(icon: "book.closed", title: "Repositorios") {
+                    TVButtonCard(icon: "book.closed", title: "Repositorios") {
                         viewModel.selectedSection = .repositories
                     }
                 }
+                #else
+                Button {
+                    viewModel.selectedSection = .search
+                    focusedSection = .search
+                } label: {
+                    VStack {
+                        Image(systemName: "magnifyingglass")
+                            .font(.title2)
+                        Text("Buscar")
+                            .font(.headline)
+                    }
+                    .padding()
+                    .foregroundColor(.white)
+                }
+                .buttonStyle(TVFocusableButtonStyle())
+                
+                if case .loaded = viewModel.state {
+                    Button {
+                        viewModel.selectedSection = .profile
+                    } label: {
+                        VStack {
+                            Image(systemName: "person")
+                                .font(.title2)
+                            Text("Perfil")
+                                .font(.headline)
+                        }
+                        .padding()
+                        .foregroundColor(.white)
+                    }
+                    .buttonStyle(TVFocusableButtonStyle())
+                    
+                    Button {
+                        viewModel.selectedSection = .repositories
+                    } label: {
+                        VStack {
+                            Image(systemName: "book.closed")
+                                .font(.title2)
+                            Text("Repositorios")
+                                .font(.headline)
+                        }
+                        .padding()
+                        .foregroundColor(.white)
+                    }
+                    .buttonStyle(TVFocusableButtonStyle())
+                }
+                #endif
             }
             .padding(.bottom, 60)
         }
@@ -567,9 +667,16 @@ struct TVFocusableButtonStyle: ButtonStyle {
             .shadow(color: configuration.isPressed ? color : Color.clear, radius: 10)
             .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
             .contentShape(Rectangle())
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(color, lineWidth: 4)
+                    .opacity(0)
+                    .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+            )
     }
 }
 
+#if os(tvOS)
 struct TVButton: View {
     let icon: String
     let title: String
@@ -618,6 +725,177 @@ struct TVMenuButton: View {
         .buttonStyle(TVFocusableButtonStyle())
     }
 }
+
+// Esto creará un botón que sigue las directrices de tvOS y muestra claramente cuando está seleccionado
+struct TVButtonCard: View {
+    let icon: String
+    let title: String
+    let action: () -> Void
+    @FocusState private var focused: Bool
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(.white)
+                
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+            .padding()
+            .frame(width: 180, height: 120)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.6))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
+            )
+            .scaleEffect(focused ? 1.1 : 1.0)
+            .animation(.spring(), value: focused)
+        }
+        .buttonStyle(.card)
+        .focused($focused)
+    }
+}
+
+// Botón de búsqueda con estilo tvOS mejorado
+struct SearchButton: View {
+    let action: () -> Void
+    @FocusState private var focused: Bool
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.headline)
+                Text("Buscar")
+                    .font(.headline)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 25)
+            .padding(.vertical, 15)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.blue)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
+            )
+            .scaleEffect(focused ? 1.05 : 1.0)
+            .animation(.spring(), value: focused)
+        }
+        .buttonStyle(.card)
+        .focused($focused)
+    }
+}
+
+// Botón para limpiar búsquedas recientes
+struct ClearButton: View {
+    let action: () -> Void
+    @FocusState private var focused: Bool
+    
+    var body: some View {
+        Button(action: action) {
+            Text("Limpiar")
+                .foregroundColor(.white)
+                .font(.headline)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.blue.opacity(0.7))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.white, lineWidth: focused ? 3 : 0)
+                )
+                .scaleEffect(focused ? 1.05 : 1.0)
+        }
+        .buttonStyle(.card)
+        .focused($focused)
+    }
+}
+
+// Botón para usuarios destacados con estilo tvOS
+struct FeaturedUserButton: View {
+    let username: String
+    let action: () -> Void
+    @FocusState private var focused: Bool
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 15) {
+                ZStack {
+                    if let url = URL(string: "https://github.com/\(username).png") {
+                        AvatarImageView(url: url, size: 140, cornerRadius: 70)
+                            .shadow(color: .blue.opacity(0.5), radius: focused ? 15 : 5)
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 140, height: 140)
+                            .clipShape(Circle())
+                            .foregroundColor(.gray)
+                    }
+                }
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: focused ? 4 : 0)
+                )
+                
+                Text(username)
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+            .frame(width: 180, height: 220)
+            .scaleEffect(focused ? 1.1 : 1.0)
+            .animation(.spring(), value: focused)
+        }
+        .buttonStyle(.card)
+        .focused($focused)
+    }
+}
+
+// Botón para búsquedas recientes con estilo tvOS
+struct RecentSearchButton: View {
+    let username: String
+    let action: () -> Void
+    @FocusState private var focused: Bool
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: "clock")
+                    .foregroundColor(.white)
+                
+                Text(username)
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 25)
+            .padding(.vertical, 20)
+            .frame(height: 70)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.5))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
+            )
+            .scaleEffect(focused ? 1.05 : 1.0)
+            .animation(.spring(), value: focused)
+        }
+        .buttonStyle(.card)
+        .focused($focused)
+    }
+}
+#endif
 
 #Preview {
     let networkClient = NetworkClient()
