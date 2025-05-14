@@ -1,4 +1,4 @@
-#if os(iPadOS)
+#if os(iOS)
 import SwiftUI
 
 struct iPadOSUserProfileView: View {
