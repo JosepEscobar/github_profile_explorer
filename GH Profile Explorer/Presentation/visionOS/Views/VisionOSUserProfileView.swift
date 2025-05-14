@@ -2,7 +2,61 @@ import SwiftUI
 import RealityKit
 import Kingfisher
 
-// Componente específico para visionOS
+// Componente específico para visionOS - Versión mejorada para avatar grande
+struct UserProfileAvatarView: View {
+    let url: URL
+    let size: CGFloat
+    @State private var rotationAngle = 0.0
+    
+    var body: some View {
+        ZStack(alignment: .center) {
+            // Fondo y efectos 3D
+            Circle()
+                .fill(Color.blue.opacity(0.05))
+                .frame(width: size + 20, height: size + 20)
+                .shadow(color: .blue.opacity(0.3), radius: 15)
+                .rotation3DEffect(
+                    .degrees(rotationAngle),
+                    axis: (x: 0, y: 1, z: 0.2)
+                )
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
+                        rotationAngle = 5
+                    }
+                }
+            
+            // Avatar estático superpuesto sobre los efectos 3D
+            KFImage(url)
+                .placeholder {
+                    ZStack {
+                        Circle().fill(Color.gray.opacity(0.2))
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(size * 0.25)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .setProcessor(DownsamplingImageProcessor(size: CGSize(width: size * 3, height: size * 3)))
+                .cacheOriginalImage()
+                .loadDiskFileSynchronously()
+                .retry(maxCount: 3, interval: .seconds(2))
+                .fade(duration: 0.3)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .background(Color.gray.opacity(0.1))
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                )
+        }
+        .frame(width: size + 20, height: size + 20)
+    }
+}
+
+// Componente específico para visionOS - Versión para avatares pequeños (barra nav)
 struct AvatarImageViewVisionOS: View {
     private let url: URL
     private let size: CGFloat
@@ -70,21 +124,12 @@ struct VisionOSUserProfileView: View {
                         // User profile header with 3D effects
                         VStack {
                             HStack(alignment: .top, spacing: 24) {
-                                // Avatar with 3D effect
-                                ZStack {
-                                    AvatarImageViewVisionOS(url: viewModel.user.avatarURL, size: 150, cornerRadius: 75)
-                                        .shadow(color: .blue.opacity(0.3), radius: 15)
-                                        .rotation3DEffect(
-                                            .degrees(rotationAngle),
-                                            axis: (x: 0, y: 1, z: 0.2)
-                                        )
-                                        .onAppear {
-                                            withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
-                                                rotationAngle = 5
-                                            }
-                                        }
-                                }
-                                .frame(width: 160, height: 160)
+                                // Avatar with 3D effect - Reemplazado con componente especializado
+                                UserProfileAvatarView(
+                                    url: viewModel.user.avatarURL,
+                                    size: 150
+                                )
+                                .frame(width: 170, height: 170)
                                 
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(viewModel.user.name ?? viewModel.user.login)

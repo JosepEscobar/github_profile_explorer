@@ -2,6 +2,40 @@ import SwiftUI
 import Kingfisher
 import RealityKit
 
+// Componente específico para iconos 3D en visionOS
+struct IconWith3DEffect: View {
+    let systemName: String
+    let color: Color
+    let size: CGFloat
+    @State private var rotationAngle: Double = 0
+    
+    var body: some View {
+        ZStack {
+            // Fondo con efecto 3D
+            Circle()
+                .fill(color.opacity(0.1))
+                .frame(width: size * 1.2, height: size * 1.2)
+                .shadow(color: color.opacity(0.4), radius: 15)
+                .rotation3DEffect(
+                    .degrees(rotationAngle),
+                    axis: (x: 0, y: 1, z: 0)
+                )
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
+                        rotationAngle = 15
+                    }
+                }
+            
+            // Icono estático
+            Image(systemName: systemName)
+                .font(.system(size: size))
+                .foregroundColor(color)
+                .symbolEffect(.pulse)
+        }
+        .frame(height: size * 1.5)
+    }
+}
+
 struct VisionOSSearchUserView: View {
     @StateObject var viewModel: VisionOSUserProfileViewModel
     @State private var showAlert = false
@@ -20,23 +54,11 @@ struct VisionOSSearchUserView: View {
                 VStack(spacing: 30) {
                     // Logo with 3D effect
                     VStack(spacing: 12) {
-                        ZStack {
-                            Image(systemName: "person.fill.viewfinder")
-                                .font(.system(size: 80))
-                                .foregroundColor(.blue)
-                                .symbolEffect(.pulse)
-                                .rotation3DEffect(
-                                    .degrees(rotationAngle),
-                                    axis: (x: 0, y: 1, z: 0)
-                                )
-                                .shadow(color: .blue.opacity(0.5), radius: 15)
-                                .onAppear {
-                                    withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
-                                        rotationAngle = 15
-                                    }
-                                }
-                        }
-                        .frame(height: 120)
+                        IconWith3DEffect(
+                            systemName: "person.fill.viewfinder", 
+                            color: .blue, 
+                            size: 80
+                        )
                         
                         Text("GitHub Profile Explorer")
                             .font(.largeTitle)
@@ -231,8 +253,17 @@ struct VisionOSTechnologyBadgeView: View {
     
     var body: some View {
         HStack(spacing: 8) {
+            // Usar una versión más robusta para los iconos de tecnología
             Image(systemName: iconName)
                 .font(.headline)
+                .foregroundColor(.primary)
+                .frame(width: 24, height: 24)
+                .background(
+                    Circle()
+                        .fill(Color.blue.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                )
+                
             Text(name)
                 .font(.headline)
         }
@@ -244,9 +275,8 @@ struct VisionOSTechnologyBadgeView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(.quaternary, lineWidth: 1)
+                .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
         )
-        .hoverEffect(.automatic)
     }
 }
 
