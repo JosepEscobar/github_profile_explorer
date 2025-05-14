@@ -1,3 +1,4 @@
+#if os(visionOS)
 import SwiftUI
 import RealityKit
 
@@ -79,4 +80,6 @@ struct ImmersiveGitHubSpace: View {
             user: User.mock()
         )
     )
-} 
+}
+
+#endif 

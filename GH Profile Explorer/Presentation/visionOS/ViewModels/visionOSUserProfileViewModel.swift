@@ -1,3 +1,4 @@
+#if os(visionOS)
 import Foundation
 import RealityKit
 import SwiftUI
@@ -337,4 +338,6 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
             return UIColor.lightGray
         }
     }
-} 
+}
+
+#endif 

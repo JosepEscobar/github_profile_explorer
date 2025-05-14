@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import SwiftUI
 import Charts
@@ -96,4 +97,5 @@ public struct LanguageStat: Identifiable {
     public var id: String { language }
     public let language: String
     public let count: Int
-} 
+}
+#endif 

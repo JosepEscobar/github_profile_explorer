@@ -1,3 +1,4 @@
+#if os(tvOS)
 import Foundation
 
 public final class tvOSUserProfileViewModel: UserProfileViewModel {
@@ -70,4 +71,5 @@ public enum TVSection {
     case recent
     case profile
     case repositories
-} 
+}
+#endif 

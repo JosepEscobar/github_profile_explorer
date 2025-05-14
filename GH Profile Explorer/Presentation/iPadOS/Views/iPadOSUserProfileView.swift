@@ -1,3 +1,4 @@
+#if os(iPadOS)
 import SwiftUI
 
 struct iPadOSUserProfileView: View {
@@ -615,4 +616,6 @@ struct FlowLayout<T: Hashable, V: View>: View {
     viewModel.state = .loaded(User.mock(), Repository.mockArray())
     
     return iPadOSUserProfileView(viewModel: viewModel)
-} 
+}
+
+#endif 

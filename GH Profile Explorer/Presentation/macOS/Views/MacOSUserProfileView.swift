@@ -1,3 +1,4 @@
+#if os(macOS)
 import SwiftUI
 import Charts
 
@@ -337,4 +338,5 @@ struct LanguageStatsView: View {
     )
     
     return MacOSUserProfileView(viewModel: viewModel)
-} 
+}
+#endif 

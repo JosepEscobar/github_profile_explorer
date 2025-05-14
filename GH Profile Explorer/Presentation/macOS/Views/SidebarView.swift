@@ -1,3 +1,4 @@
+#if os(macOS)
 import SwiftUI
 
 // Enumeración común para ambas plataformas
@@ -15,25 +16,15 @@ struct SidebarView: View {
     @State private var isShowingSearchField = false
     
     var body: some View {
-        #if os(macOS)
         // Implementación específica para macOS
         MacOSSidebarContent(
             viewModel: viewModel,
             selectedSidebarItem: $selectedSidebarItem,
             isShowingSearchField: $isShowingSearchField
         )
-        #else
-        // Implementación específica para iOS
-        IOSSidebarContent(
-            viewModel: viewModel,
-            selectedSidebarItem: $selectedSidebarItem,
-            isShowingSearchField: $isShowingSearchField
-        )
-        #endif
     }
 }
 
-#if os(macOS)
 // Implementación de macOS
 private struct MacOSSidebarContent: View {
     @ObservedObject var viewModel: macOSUserProfileViewModel
@@ -132,118 +123,6 @@ private struct MacOSSidebarContent: View {
         .frame(minWidth: 200)
     }
 }
-#else
-// Implementación de iOS
-private struct IOSSidebarContent: View {
-    @ObservedObject var viewModel: macOSUserProfileViewModel
-    @Binding var selectedSidebarItem: SidebarItem
-    @Binding var isShowingSearchField: Bool
-    
-    var body: some View {
-        List {
-            Section("Buscar") {
-                HStack {
-                    if isShowingSearchField {
-                        TextField("Nombre de usuario", text: $viewModel.username)
-                            .textFieldStyle(.plain)
-                            .onSubmit {
-                                viewModel.fetchUserProfile()
-                                selectedSidebarItem = .profile
-                            }
-                        
-                        Button {
-                            isShowingSearchField = false
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    } else {
-                        Text("Buscar usuario")
-                        
-                        Spacer()
-                        
-                        Button {
-                            isShowingSearchField = true
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.vertical, 4)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedSidebarItem = .search
-                }
-                .background(selectedSidebarItem == .search ? Color.accentColor.opacity(0.1) : Color.clear)
-            }
-            
-            if case let .loaded(user, _) = viewModel.state {
-                Section("Usuario actual") {
-                    UserRowView(user: user, isCurrent: true)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedSidebarItem = .profile
-                        }
-                        .background(selectedSidebarItem == .profile ? Color.accentColor.opacity(0.1) : Color.clear)
-                    
-                    Label("Repositorios", systemImage: "book.closed")
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedSidebarItem = .repositories
-                        }
-                        .background(selectedSidebarItem == .repositories ? Color.accentColor.opacity(0.1) : Color.clear)
-                    
-                    Label("Estadísticas", systemImage: "chart.bar")
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedSidebarItem = .stats
-                        }
-                        .background(selectedSidebarItem == .stats ? Color.accentColor.opacity(0.1) : Color.clear)
-                }
-            }
-            
-            Section("Favoritos") {
-                if viewModel.favoriteUsernames.isEmpty {
-                    Text("No hay favoritos")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                } else {
-                    ForEach(viewModel.favoriteUsernames, id: \.self) { username in
-                        HStack {
-                            Label(username, systemImage: "person")
-                            
-                            Spacer()
-                            
-                            Button {
-                                viewModel.removeFromFavorites(username: username)
-                            } label: {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            viewModel.username = username
-                            viewModel.fetchUserProfile()
-                            selectedSidebarItem = .profile
-                        }
-                    }
-                }
-            }
-        }
-        #if !os(tvOS)
-        .listStyle(.sidebar)
-        #else
-        .listStyle(.plain)
-        #endif
-        .frame(minWidth: 200)
-    }
-}
-#endif
 
 struct UserRowView: View {
     let user: User
@@ -293,4 +172,5 @@ struct UserRowView: View {
     } detail: {
         Text("Select an item")
     }
-} 
+}
+#endif 

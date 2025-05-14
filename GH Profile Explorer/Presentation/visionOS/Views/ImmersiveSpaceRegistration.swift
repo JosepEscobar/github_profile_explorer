@@ -1,3 +1,4 @@
+#if os(visionOS)
 import SwiftUI
 import RealityKit
 
@@ -43,4 +44,6 @@ struct ImmersiveSpacePreview: View {
 
 #Preview {
     ImmersiveSpacePreview()
-} 
+}
+
+#endif 

@@ -6,7 +6,7 @@
 ![Kingfisher](https://img.shields.io/badge/Kingfisher-yellow.svg)
 ![Nimble](https://img.shields.io/badge/Nimble-green.svg)
 
-**GitHub Profile Explorer** es una aplicación nativa y multiplataforma (iOS, iPadOS, macOS y tvOS) que permite buscar perfiles de GitHub y visualizar sus datos y repositorios.
+**GitHub Profile Explorer** es una aplicación nativa y multiplataforma (iOS, iPadOS, macOS, visionOS y tvOS) que permite buscar perfiles de GitHub y visualizar sus datos y repositorios.
 
 ## 🚀 Características
 

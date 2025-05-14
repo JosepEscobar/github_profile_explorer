@@ -1,3 +1,4 @@
+#if os(visionOS)
 import SwiftUI
 import RealityKit
 import Kingfisher
@@ -595,4 +596,6 @@ struct VisionOSDateInfoRow: View {
             )
         )
     }
-} 
+}
+
+#endif 

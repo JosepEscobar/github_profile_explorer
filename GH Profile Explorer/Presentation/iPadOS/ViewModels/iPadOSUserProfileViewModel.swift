@@ -1,3 +1,4 @@
+#if os(iPadOS)
 import Foundation
 import SwiftUI
 
@@ -110,4 +111,5 @@ public final class iPadOSUserProfileViewModel: UserProfileViewModel {
 public enum DeviceOrientation {
     case portrait
     case landscape
-} 
+}
+#endif 

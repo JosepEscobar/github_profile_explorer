@@ -1,3 +1,4 @@
+#if os(tvOS)
 import SwiftUI
 
 struct TVOSHomeView: View {
@@ -105,32 +106,10 @@ struct TVOSHomeView: View {
                             viewModel.fetchUserProfile()
                         }
                     
-                    #if os(tvOS)
                     SearchButton {
                         viewModel.fetchUserProfile()
                     }
                     .focused($focusedSection, equals: .search)
-                    #else
-                    Button {
-                        viewModel.fetchUserProfile()
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.headline)
-                            Text("Buscar")
-                                .font(.headline)
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 25)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.blue)
-                        )
-                    }
-                    .buttonStyle(TVFocusableButtonStyle())
-                    .focused($focusedSection, equals: .search)
-                    #endif
                 }
                 .padding(.horizontal, 100)
                 
@@ -144,7 +123,6 @@ struct TVOSHomeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 30) {
                             ForEach(viewModel.featuredUsers, id: \.self) { username in
-                                #if os(tvOS)
                                 FeaturedUserButton(username: username) {
                                     viewModel.selectFeaturedUser(username)
                                 }
@@ -154,48 +132,6 @@ struct TVOSHomeView: View {
                                         viewModel.selectedSection = .featured
                                     }
                                 }
-                                #else
-                                Button {
-                                    viewModel.selectFeaturedUser(username)
-                                } label: {
-                                    VStack(spacing: 15) {
-                                        ZStack {
-                                            if let url = URL(string: "https://github.com/\(username).png") {
-                                                AvatarImageView(url: url, size: 140, cornerRadius: 70)
-                                                    .shadow(color: .blue.opacity(0.5), radius: 5)
-                                            } else {
-                                                Image(systemName: "person.circle.fill")
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .frame(width: 140, height: 140)
-                                                    .clipShape(Circle())
-                                                    .foregroundColor(.gray)
-                                            }
-                                        }
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white, lineWidth: 4)
-                                                .opacity(0)
-                                        )
-                                        
-                                        Text(username)
-                                            .font(.title2)
-                                            .foregroundColor(.white)
-                                    }
-                                    .frame(width: 180, height: 220)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(Color.clear)
-                                    )
-                                }
-                                .buttonStyle(TVFocusableButtonStyle())
-                                .focused($focusedSection, equals: .featured)
-                                .onChange(of: focusedSection) { oldValue, newValue in
-                                    if newValue == .featured {
-                                        viewModel.selectedSection = .featured
-                                    }
-                                }
-                                #endif
                             }
                         }
                         .padding(.horizontal)
@@ -212,23 +148,15 @@ struct TVOSHomeView: View {
                             
                             Spacer()
                             
-                            #if os(tvOS)
                             ClearButton {
                                 viewModel.clearRecentSearches()
                             }
-                            #else
-                            Button("Limpiar") {
-                                viewModel.clearRecentSearches()
-                            }
-                            .foregroundColor(.blue)
-                            #endif
                         }
                         .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 20) {
                                 ForEach(viewModel.recentSearches, id: \.self) { username in
-                                    #if os(tvOS)
                                     RecentSearchButton(username: username) {
                                         viewModel.username = username
                                         viewModel.fetchUserProfile()
@@ -239,35 +167,6 @@ struct TVOSHomeView: View {
                                             viewModel.selectedSection = .recent
                                         }
                                     }
-                                    #else
-                                    Button {
-                                        viewModel.username = username
-                                        viewModel.fetchUserProfile()
-                                    } label: {
-                                        HStack(spacing: 12) {
-                                            Image(systemName: "clock")
-                                                .foregroundColor(.white)
-                                            
-                                            Text(username)
-                                                .font(.headline)
-                                                .foregroundColor(.white)
-                                        }
-                                        .padding(.horizontal, 25)
-                                        .padding(.vertical, 20)
-                                        .frame(height: 70)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.black.opacity(0.5))
-                                        )
-                                    }
-                                    .buttonStyle(TVFocusableButtonStyle())
-                                    .focused($focusedSection, equals: .recent)
-                                    .onChange(of: focusedSection) { oldValue, newValue in
-                                        if newValue == .recent {
-                                            viewModel.selectedSection = .recent
-                                        }
-                                    }
-                                    #endif
                                 }
                             }
                             .padding(.horizontal)
@@ -280,7 +179,6 @@ struct TVOSHomeView: View {
             
             // Menu footer
             HStack(spacing: 40) {
-                #if os(tvOS)
                 TVButtonCard(icon: "magnifyingglass", title: "Buscar") {
                     viewModel.selectedSection = .search
                     focusedSection = .search
@@ -295,52 +193,6 @@ struct TVOSHomeView: View {
                         viewModel.selectedSection = .repositories
                     }
                 }
-                #else
-                Button {
-                    viewModel.selectedSection = .search
-                    focusedSection = .search
-                } label: {
-                    VStack {
-                        Image(systemName: "magnifyingglass")
-                            .font(.title2)
-                        Text("Buscar")
-                            .font(.headline)
-                    }
-                    .padding()
-                    .foregroundColor(.white)
-                }
-                .buttonStyle(TVFocusableButtonStyle())
-                
-                if case .loaded = viewModel.state {
-                    Button {
-                        viewModel.selectedSection = .profile
-                    } label: {
-                        VStack {
-                            Image(systemName: "person")
-                                .font(.title2)
-                            Text("Perfil")
-                                .font(.headline)
-                        }
-                        .padding()
-                        .foregroundColor(.white)
-                    }
-                    .buttonStyle(TVFocusableButtonStyle())
-                    
-                    Button {
-                        viewModel.selectedSection = .repositories
-                    } label: {
-                        VStack {
-                            Image(systemName: "book.closed")
-                                .font(.title2)
-                            Text("Repositorios")
-                                .font(.headline)
-                        }
-                        .padding()
-                        .foregroundColor(.white)
-                    }
-                    .buttonStyle(TVFocusableButtonStyle())
-                }
-                #endif
             }
             .padding(.bottom, 60)
         }
@@ -676,7 +528,6 @@ struct TVFocusableButtonStyle: ButtonStyle {
     }
 }
 
-#if os(tvOS)
 struct TVButton: View {
     let icon: String
     let title: String
@@ -726,7 +577,6 @@ struct TVMenuButton: View {
     }
 }
 
-// Esto creará un botón que sigue las directrices de tvOS y muestra claramente cuando está seleccionado
 struct TVButtonCard: View {
     let icon: String
     let title: String
@@ -762,7 +612,6 @@ struct TVButtonCard: View {
     }
 }
 
-// Botón de búsqueda con estilo tvOS mejorado
 struct SearchButton: View {
     let action: () -> Void
     @FocusState private var focused: Bool
@@ -794,7 +643,6 @@ struct SearchButton: View {
     }
 }
 
-// Botón para limpiar búsquedas recientes
 struct ClearButton: View {
     let action: () -> Void
     @FocusState private var focused: Bool
@@ -821,7 +669,6 @@ struct ClearButton: View {
     }
 }
 
-// Botón para usuarios destacados con estilo tvOS
 struct FeaturedUserButton: View {
     let username: String
     let action: () -> Void
@@ -861,7 +708,6 @@ struct FeaturedUserButton: View {
     }
 }
 
-// Botón para búsquedas recientes con estilo tvOS
 struct RecentSearchButton: View {
     let username: String
     let action: () -> Void
@@ -895,7 +741,8 @@ struct RecentSearchButton: View {
         .focused($focused)
     }
 }
-#endif
+
+
 
 #Preview {
     let networkClient = NetworkClient()
@@ -909,3 +756,4 @@ struct RecentSearchButton: View {
     
     return TVOSHomeView(viewModel: viewModel)
 } 
+#endif

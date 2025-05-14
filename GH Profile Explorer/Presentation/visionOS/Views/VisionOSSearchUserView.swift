@@ -1,3 +1,4 @@
+#if os(visionOS)
 import SwiftUI
 import Kingfisher
 import RealityKit
@@ -291,4 +292,6 @@ struct VisionOSTechnologyBadgeView: View {
     )
     
     return VisionOSSearchUserView(viewModel: viewModel)
-} 
+}
+
+#endif 

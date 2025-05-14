@@ -1,3 +1,4 @@
+#if os(iOS)
 import SwiftUI
 import Kingfisher
 
@@ -200,3 +201,4 @@ struct TechnologyBadgeView: View {
     
     return SearchUserView(viewModel: viewModel)
 }
+#endif

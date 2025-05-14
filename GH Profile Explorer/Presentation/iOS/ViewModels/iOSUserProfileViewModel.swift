@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 
 public final class iOSUserProfileViewModel: UserProfileViewModel {
@@ -60,3 +61,4 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
         fetchUserProfile()
     }
 } 
+#endif 
