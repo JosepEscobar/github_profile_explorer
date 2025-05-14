@@ -8,10 +8,11 @@ struct iPadOSUserProfileView: View {
     @Environment(\.openURL) private var openURL
     @State private var showError = false
     @State private var error: AppError?
+    @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
     
     var body: some View {
         GeometryReader { geometry in
-            NavigationSplitView {
+            NavigationSplitView(columnVisibility: $columnVisibility) {
                 sidebarContent
             } detail: {
                 if case let .loaded(user, repositories) = viewModel.state {
@@ -26,19 +27,49 @@ struct iPadOSUserProfileView: View {
                     } description: {
                         Text("Ingresa un nombre de usuario en la barra lateral para ver su perfil.")
                     }
+                    .onAppear {
+                        columnVisibility = .all // Asegura que la barra lateral esté visible cuando no hay resultados
+                    }
                 }
             }
             .navigationSplitViewStyle(.balanced)
             .onAppear {
                 updateOrientation(geometry: geometry)
-            }
-            .onChange(of: geometry.size) { oldValue, newValue in
-                updateOrientation(geometry: geometry)
+                // Si no hay resultados, mostrar la barra lateral por defecto
+                if case .loaded = viewModel.state {
+                    // Mantener la configuración actual si hay contenido
+                } else {
+                    columnVisibility = .all
+                }
             }
             .onChange(of: viewModel.state) { oldValue, newValue in
                 if case let .error(newError) = newValue {
                     error = newError
                     showError = true
+                }
+                
+                // Actualizar visibilidad cuando cambia el estado
+                if case .loaded = newValue {
+                    if geometry.size.width > 1000 {
+                        // En pantallas grandes, mostrar ambas columnas
+                        columnVisibility = .all
+                    } else {
+                        // En pantallas más pequeñas, ocultar la barra lateral cuando hay resultados
+                        columnVisibility = .detailOnly
+                    }
+                } else {
+                    // Cuando no hay resultados, mostrar la barra lateral
+                    columnVisibility = .all
+                }
+            }
+            .onChange(of: geometry.size) { oldValue, newValue in
+                updateOrientation(geometry: geometry)
+                
+                // Ajustar visibilidad cuando cambia el tamaño de la pantalla
+                if case .loaded = viewModel.state {
+                    if newValue.width > 1000 {
+                        columnVisibility = .all
+                    }
                 }
             }
             .onChange(of: viewModel.urlToOpen) { oldValue, newValue in
@@ -168,27 +199,43 @@ struct iPadOSUserProfileView: View {
                     repositoriesList(repositories: repositories)
                 }
                 .padding()
+                .frame(maxWidth: .infinity)
             }
         } else {
-            // Regular (landscape) - use horizontal layout
-            HStack(spacing: 0) {
-                ScrollView {
-                    profileDetail(user: user)
-                        .padding()
-                }
-                .frame(width: viewModel.isDetailExpanded ? geometry.size.width * 0.4 : geometry.size.width * 0.3)
-                
-                Divider()
-                
-                VStack(spacing: 0) {
-                    searchRepositoriesBar
-                    
-                    if viewModel.selectedRepository != nil {
-                        repositoryDetailView
-                    } else {
-                        repositoriesList(repositories: repositories)
+            // Regular (landscape) - use horizontal layout with flexible sizing
+            GeometryReader { detailGeometry in
+                HStack(spacing: 0) {
+                    // Perfil (izquierda)
+                    ScrollView {
+                        profileDetail(user: user)
+                            .padding()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
+                    .frame(
+                        width: viewModel.isDetailExpanded ? 
+                            min(detailGeometry.size.width * 0.5, 600) : 
+                            min(detailGeometry.size.width * 0.4, 500)
+                    )
+                    .background(Color.primary.opacity(0.03))
+                    
+                    Divider()
+                    
+                    // Repositorios (derecha)
+                    VStack(spacing: 0) {
+                        searchRepositoriesBar
+                        
+                        if viewModel.selectedRepository != nil {
+                            repositoryDetailView
+                        } else {
+                            ScrollView {
+                                repositoriesList(repositories: repositories)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -206,6 +253,7 @@ struct iPadOSUserProfileView: View {
                     Text(user.name ?? user.login)
                         .font(.title)
                         .fontWeight(.bold)
+                        .lineLimit(1)
                     
                     Text("@\(user.login)")
                         .font(.subheadline)
@@ -254,6 +302,7 @@ struct iPadOSUserProfileView: View {
         .background(Color.primary.opacity(0.05))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 5)
+        .frame(maxWidth: .infinity)
     }
     
     private func profileDetail(user: User) -> some View {
@@ -278,6 +327,7 @@ struct iPadOSUserProfileView: View {
                     Text(user.name ?? "")
                         .font(.title)
                         .fontWeight(.bold)
+                        .lineLimit(1)
                     
                     Text("@\(user.login)")
                         .font(.headline)
@@ -370,6 +420,7 @@ struct iPadOSUserProfileView: View {
                 .padding()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     private func statView(count: Int, title: String, icon: String) -> some View {
@@ -498,6 +549,7 @@ struct iPadOSUserProfileView: View {
                     Spacer()
                 }
                 .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -510,6 +562,10 @@ struct iPadOSUserProfileView: View {
                 ForEach(viewModel.filteredRepositories) { repository in
                     RepositoryItemView(repository: repository) { selectedRepo in
                         viewModel.selectedRepository = selectedRepo
+                        // Asegurarse de que la vista detalle sea visible en dispositivos pequeños
+                        if horizontalSizeClass == .compact {
+                            columnVisibility = .detailOnly
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
@@ -520,6 +576,7 @@ struct iPadOSUserProfileView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity)
     }
     
     private func languageColor(for language: String) -> Color {

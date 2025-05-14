@@ -9,9 +9,12 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     @Published public var searchQuery: String = ""
     @Published public var favoriteUsernames: [String] = []
     @Published public var urlToOpen: URL? = nil
+    @Published public var searchHistory: [String] = []
     
     private let userDefaults: UserDefaults
     private let favoritesKey = "favoriteUsernames"
+    private let historyKey = "searchHistory"
+    private let maxHistoryItems = 10
     
     public override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
@@ -20,15 +23,18 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
         self.userDefaults = UserDefaults.standard
         super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
         loadFavorites()
+        loadSearchHistory()
     }
     
-    public override func fetchUserProfile() {
-        guard !username.isEmpty else {
-            state = .error(.unexpectedError("Username cannot be empty"))
-            return
-        }
-        
+    override public func fetchUserProfile() {
         super.fetchUserProfile()
+    }
+    
+    public func handleLoadedState(user: User, repositories: [Repository]) {
+        addToSearchHistory(username: user.login)
+        searchQuery = ""
+        selectedRepository = nil
+        calculateLanguageStats()
     }
     
     public func calculateLanguageStats() {
@@ -53,6 +59,47 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     private func loadFavorites() {
         if let favorites = userDefaults.stringArray(forKey: favoritesKey) {
             favoriteUsernames = favorites
+        }
+    }
+    
+    private func loadSearchHistory() {
+        if let history = userDefaults.stringArray(forKey: historyKey) {
+            searchHistory = history
+        }
+    }
+    
+    private func addToSearchHistory(username: String) {
+        if let index = searchHistory.firstIndex(of: username) {
+            searchHistory.remove(at: index)
+        }
+        
+        searchHistory.insert(username, at: 0)
+        
+        if searchHistory.count > maxHistoryItems {
+            searchHistory = Array(searchHistory.prefix(maxHistoryItems))
+        }
+        
+        userDefaults.set(searchHistory, forKey: historyKey)
+    }
+    
+    public func clearSearchHistory() {
+        searchHistory = []
+        userDefaults.removeObject(forKey: historyKey)
+    }
+    
+    public func selectFromHistory(username: String) {
+        self.username = username
+        Task {
+            await MainActor.run {
+                fetchUserProfile()
+            }
+        }
+    }
+    
+    public func removeFromHistory(username: String) {
+        if let index = searchHistory.firstIndex(of: username) {
+            searchHistory.remove(at: index)
+            userDefaults.set(searchHistory, forKey: historyKey)
         }
     }
     
@@ -83,9 +130,11 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func openInBrowser(username: String) {
-        if let url = URL(string: "https://github.com/\(username)") {
-            urlToOpen = url
+        guard let url = URL(string: "https://github.com/\(username)") else { 
+            return 
         }
+        
+        urlToOpen = url
     }
     
     public func openRepositoryInBrowser(repository: Repository) {

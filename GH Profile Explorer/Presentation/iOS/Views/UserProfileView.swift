@@ -1,3 +1,4 @@
+#if os(iOS)
 import SwiftUI
 
 struct UserProfileView: View {
@@ -237,4 +238,5 @@ struct UserProfileView: View {
             repositories: Repository.mockArray()
         )
     }
-} 
+}
+#endif 

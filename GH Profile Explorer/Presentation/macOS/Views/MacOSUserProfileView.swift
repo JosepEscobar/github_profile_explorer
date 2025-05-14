@@ -21,8 +21,12 @@ struct MacOSUserProfileView: View {
                 showError = true
             }
             
-            if case let .loaded(_, repositories) = newState {
-                viewModel.calculateLanguageStats()
+            if case let .loaded(user, repositories) = newState {
+                viewModel.handleLoadedState(user: user, repositories: repositories)
+                
+                if selectedSidebarItem == .search {
+                    selectedSidebarItem = .profile
+                }
             }
         }
         .onChange(of: viewModel.urlToOpen) { oldValue, newValue in
@@ -54,7 +58,7 @@ struct MacOSUserProfileView: View {
                             .foregroundColor(.primary)
                     }
                 }
-                .disabled(!(viewModel.state == .loaded(User.mock(), [])))
+                .disabled(!isUserLoaded)
                 .help("Marcar como favorito")
             }
             
@@ -66,10 +70,17 @@ struct MacOSUserProfileView: View {
                 } label: {
                     Image(systemName: "safari")
                 }
-                .disabled(!(viewModel.state == .loaded(User.mock(), [])))
+                .disabled(!isUserLoaded)
                 .help("Abrir en el navegador")
             }
         }
+    }
+    
+    private var isUserLoaded: Bool {
+        if case .loaded = viewModel.state {
+            return true
+        }
+        return false
     }
     
     @ViewBuilder
