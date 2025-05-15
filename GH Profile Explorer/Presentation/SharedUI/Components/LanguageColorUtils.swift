@@ -32,7 +32,7 @@ public enum LanguageColorUtils {
             static let ruby = Color.red
             static let go = Color.cyan
             static let rust = Color.brown
-            static let html = Color.orange
+            static let html = Color.cyan
             static let css = Color.blue
             static let php = Color.purple
             static let dart = Color.cyan

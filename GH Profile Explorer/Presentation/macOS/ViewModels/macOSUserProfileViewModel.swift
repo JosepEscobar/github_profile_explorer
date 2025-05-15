@@ -4,56 +4,70 @@ import SwiftUI
 import Charts
 
 public final class macOSUserProfileViewModel: UserProfileViewModel {
-    @Published public var languageStats: [LanguageStat] = []
-    @Published public var selectedRepository: Repository?
+    @Published public var languageStats: [LanguageStatUIModel] = []
+    @Published public var selectedRepository: RepositoryUIModel?
     @Published public var searchQuery: String = ""
     @Published public var favoriteUsernames: [String] = []
     @Published public var urlToOpen: URL? = nil
     @Published public var searchHistory: [String] = []
     
+    @Published public var userUI: UserUIModel?
+    @Published public var repositoriesUI: [RepositoryUIModel] = []
+    
+    private let calculateLanguageStatsUseCase: CalculateLanguageStatsUseCaseProtocol
     private let userDefaults: UserDefaults
     private let favoritesKey = "favoriteUsernames"
     private let historyKey = "searchHistory"
     private let maxHistoryItems = 10
     
-    public override init(
+    public init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
-        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
+        calculateLanguageStatsUseCase: CalculateLanguageStatsUseCaseProtocol
     ) {
+        self.calculateLanguageStatsUseCase = calculateLanguageStatsUseCase
         self.userDefaults = UserDefaults.standard
         super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
         loadFavorites()
         loadSearchHistory()
     }
     
+    // Inicializador conveniente para mantener compatibilidad
+    public convenience override init(
+        fetchUserUseCase: FetchUserUseCaseProtocol,
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+    ) {
+        self.init(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase,
+            calculateLanguageStatsUseCase: CalculateLanguageStatsUseCase()
+        )
+    }
+    
     override public func fetchUserProfile() {
         super.fetchUserProfile()
+    }
+    
+    public var filteredRepositories: [RepositoryUIModel] {
+        guard !searchQuery.isEmpty else { return repositoriesUI }
+        return repositoriesUI.filter { repo in
+            repo.name.localizedCaseInsensitiveContains(searchQuery) ||
+            (repo.description?.localizedCaseInsensitiveContains(searchQuery) ?? false)
+        }
     }
     
     public func handleLoadedState(user: User, repositories: [Repository]) {
         addToSearchHistory(username: user.login)
         searchQuery = ""
         selectedRepository = nil
-        calculateLanguageStats()
-    }
-    
-    public func calculateLanguageStats() {
-        guard case let .loaded(_, repositories) = state else {
-            languageStats = []
-            return
-        }
         
-        var languageCounts: [String: Int] = [:]
+        // Convertir modelos de dominio a modelos UI
+        userUI = UserUIModel(from: user)
+        repositoriesUI = repositories.map { RepositoryUIModel(from: $0) }
         
-        for repo in repositories {
-            if let language = repo.language {
-                languageCounts[language, default: 0] += 1
-            }
-        }
-        
-        languageStats = languageCounts.map { language, count in
-            LanguageStat(language: language, count: count)
-        }.sorted { $0.count > $1.count }
+        // Obtener estadísticas del caso de uso y convertirlas a modelo UI
+        let domainStats = calculateLanguageStatsUseCase.execute(for: repositories)
+        languageStats = domainStats.map { LanguageStatUIModel(language: $0.language, count: $0.count) }
     }
     
     private func loadFavorites() {
@@ -137,14 +151,8 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
         urlToOpen = url
     }
     
-    public func openRepositoryInBrowser(repository: Repository) {
+    public func openRepositoryInBrowser(repository: RepositoryUIModel) {
         urlToOpen = repository.htmlURL
     }
-}
-
-public struct LanguageStat: Identifiable {
-    public var id: String { language }
-    public let language: String
-    public let count: Int
 }
 #endif 

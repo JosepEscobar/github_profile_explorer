@@ -1,6 +1,6 @@
 import Foundation
 
-public struct RepositoryUIModel: Identifiable {
+public struct RepositoryUIModel: Identifiable, Hashable {
     public let id: Int
     public let name: String
     public let description: String?
@@ -27,6 +27,15 @@ public struct RepositoryUIModel: Identifiable {
         self.htmlURL = domainModel.htmlURL
         self.ownerLogin = domainModel.owner.login
         self.ownerAvatarURL = domainModel.owner.avatarURL
+    }
+    
+    // Implementación de Hashable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    public static func == (lhs: RepositoryUIModel, rhs: RepositoryUIModel) -> Bool {
+        return lhs.id == rhs.id
     }
     
     public static func mock() -> RepositoryUIModel {

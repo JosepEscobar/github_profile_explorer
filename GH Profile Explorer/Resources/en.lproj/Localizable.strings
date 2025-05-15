@@ -54,4 +54,20 @@
 "all_languages" = "All";
 
 // Errors
-"empty_username" = "Username cannot be empty"; 
+"empty_username" = "Username cannot be empty";
+
+// macOS
+"add_to_favorites" = "Add to favorites";
+"open_in_browser" = "Open in browser";
+"select_option" = "Select an option";
+"view_profile_on_github" = "View profile on GitHub";
+"repositories" = "Repositories";
+"no_repositories_found" = "No repositories found";
+"open" = "Open";
+"no_stats_available" = "No stats available";
+"language_distribution" = "Language Distribution";
+"total_repositories" = "Total repositories with defined language";
+"current_user" = "Current user";
+"search_user" = "Search user";
+"favorites" = "Favorites";
+"no_favorites" = "No favorites"; 
