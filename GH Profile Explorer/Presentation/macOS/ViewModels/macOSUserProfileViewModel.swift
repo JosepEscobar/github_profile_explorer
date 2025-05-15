@@ -14,22 +14,31 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     @Published public var userUI: UserUIModel?
     @Published public var repositoriesUI: [RepositoryUIModel] = []
     
+    // Use cases
     private let calculateLanguageStatsUseCase: CalculateLanguageStatsUseCaseProtocol
-    private let userDefaults: UserDefaults
-    private let favoritesKey = "favoriteUsernames"
-    private let historyKey = "searchHistory"
-    private let maxHistoryItems = 10
+    private let searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
+    private let favoritesUseCase: ManageFavoritesUseCaseProtocol
+    private let openURLUseCase: OpenURLUseCaseProtocol
+    private let filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
     
     public init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
-        calculateLanguageStatsUseCase: CalculateLanguageStatsUseCaseProtocol
+        calculateLanguageStatsUseCase: CalculateLanguageStatsUseCaseProtocol,
+        searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol,
+        favoritesUseCase: ManageFavoritesUseCaseProtocol,
+        openURLUseCase: OpenURLUseCaseProtocol,
+        filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
     ) {
         self.calculateLanguageStatsUseCase = calculateLanguageStatsUseCase
-        self.userDefaults = UserDefaults.standard
+        self.searchHistoryUseCase = searchHistoryUseCase
+        self.favoritesUseCase = favoritesUseCase
+        self.openURLUseCase = openURLUseCase
+        self.filterRepositoriesUseCase = filterRepositoriesUseCase
+        
         super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
-        loadFavorites()
-        loadSearchHistory()
+        
+        loadInitialData()
     }
     
     // Inicializador conveniente para mantener compatibilidad
@@ -40,8 +49,17 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
         self.init(
             fetchUserUseCase: fetchUserUseCase,
             fetchRepositoriesUseCase: fetchRepositoriesUseCase,
-            calculateLanguageStatsUseCase: CalculateLanguageStatsUseCase()
+            calculateLanguageStatsUseCase: CalculateLanguageStatsUseCase(),
+            searchHistoryUseCase: ManageSearchHistoryUseCase(),
+            favoritesUseCase: ManageFavoritesUseCase(),
+            openURLUseCase: OpenURLUseCase(),
+            filterRepositoriesUseCase: FilterRepositoriesUseCase()
         )
+    }
+    
+    private func loadInitialData() {
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .macOS)
+        favoriteUsernames = favoritesUseCase.loadFavorites()
     }
     
     override public func fetchUserProfile() {
@@ -50,14 +68,22 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     
     public var filteredRepositories: [RepositoryUIModel] {
         guard !searchQuery.isEmpty else { return repositoriesUI }
-        return repositoriesUI.filter { repo in
-            repo.name.localizedCaseInsensitiveContains(searchQuery) ||
-            (repo.description?.localizedCaseInsensitiveContains(searchQuery) ?? false)
+        
+        if case .loaded(_, let repositories) = state {
+            let filteredDomainRepos = filterRepositoriesUseCase.filterBySearchText(
+                repositories: repositories, 
+                searchText: searchQuery
+            )
+            return filteredDomainRepos.map { RepositoryUIModel(from: $0) }
         }
+        
+        return []
     }
     
     public func handleLoadedState(user: User, repositories: [Repository]) {
-        addToSearchHistory(username: user.login)
+        searchHistoryUseCase.addToSearchHistory(username: user.login, platform: .macOS)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .macOS)
+        
         searchQuery = ""
         selectedRepository = nil
         
@@ -70,35 +96,9 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
         languageStats = domainStats.map { LanguageStatUIModel(language: $0.language, count: $0.count) }
     }
     
-    private func loadFavorites() {
-        if let favorites = userDefaults.stringArray(forKey: favoritesKey) {
-            favoriteUsernames = favorites
-        }
-    }
-    
-    private func loadSearchHistory() {
-        if let history = userDefaults.stringArray(forKey: historyKey) {
-            searchHistory = history
-        }
-    }
-    
-    private func addToSearchHistory(username: String) {
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-        }
-        
-        searchHistory.insert(username, at: 0)
-        
-        if searchHistory.count > maxHistoryItems {
-            searchHistory = Array(searchHistory.prefix(maxHistoryItems))
-        }
-        
-        userDefaults.set(searchHistory, forKey: historyKey)
-    }
-    
     public func clearSearchHistory() {
+        searchHistoryUseCase.clearSearchHistory(for: .macOS)
         searchHistory = []
-        userDefaults.removeObject(forKey: historyKey)
     }
     
     public func selectFromHistory(username: String) {
@@ -111,48 +111,39 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func removeFromHistory(username: String) {
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-            userDefaults.set(searchHistory, forKey: historyKey)
-        }
+        searchHistoryUseCase.removeFromHistory(username: username, platform: .macOS)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .macOS)
     }
     
     public func addToFavorites(username: String) {
-        if !favoriteUsernames.contains(username) {
-            favoriteUsernames.append(username)
-            userDefaults.set(favoriteUsernames, forKey: favoritesKey)
-        }
+        favoritesUseCase.addToFavorites(username: username)
+        favoriteUsernames = favoritesUseCase.loadFavorites()
     }
     
     public func removeFromFavorites(username: String) {
-        if let index = favoriteUsernames.firstIndex(of: username) {
-            favoriteUsernames.remove(at: index)
-            userDefaults.set(favoriteUsernames, forKey: favoritesKey)
-        }
+        favoritesUseCase.removeFromFavorites(username: username)
+        favoriteUsernames = favoritesUseCase.loadFavorites()
     }
     
     public func isFavorite(username: String) -> Bool {
-        return favoriteUsernames.contains(username)
+        return favoritesUseCase.isFavorite(username: username)
     }
     
     public func toggleFavorite(username: String) {
-        if isFavorite(username: username) {
-            removeFromFavorites(username: username)
-        } else {
-            addToFavorites(username: username)
-        }
+        favoritesUseCase.toggleFavorite(username: username)
+        favoriteUsernames = favoritesUseCase.loadFavorites()
     }
     
     public func openInBrowser(username: String) {
-        guard let url = URL(string: "https://github.com/\(username)") else { 
-            return 
-        }
-        
-        urlToOpen = url
+        urlToOpen = openURLUseCase.createGitHubProfileURL(for: username)
     }
     
     public func openRepositoryInBrowser(repository: RepositoryUIModel) {
-        urlToOpen = repository.htmlURL
+        if case .loaded(_, let repositories) = state {
+            if let domainRepo = repositories.first(where: { $0.id == repository.id }) {
+                urlToOpen = openURLUseCase.createRepositoryURL(for: domainRepo)
+            }
+        }
     }
 }
 #endif 

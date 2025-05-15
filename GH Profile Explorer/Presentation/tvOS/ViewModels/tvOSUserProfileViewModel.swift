@@ -10,48 +10,39 @@ public final class tvOSUserProfileViewModel: UserProfileViewModel {
     @Published public var selectedSection: TVSection = .featured
     @Published public var showVoiceSearch: Bool = false
     
-    private let userDefaults: UserDefaults
-    private let recentSearchesKey = "tvOSRecentSearches"
-    private let maxRecentSearches = 5
+    // Use cases
+    private let searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
     
-    public override init(
+    public init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
-        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
+        searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
     ) {
-        self.userDefaults = UserDefaults.standard
+        self.searchHistoryUseCase = searchHistoryUseCase
         super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
         loadRecentSearches()
     }
     
+    // Inicializador conveniente para mantener compatibilidad
+    public convenience override init(
+        fetchUserUseCase: FetchUserUseCaseProtocol,
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+    ) {
+        self.init(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase,
+            searchHistoryUseCase: ManageSearchHistoryUseCase()
+        )
+    }
+    
     public override func fetchUserProfile() {
         super.fetchUserProfile()
-        addToRecentSearches(username: username)
+        searchHistoryUseCase.addToSearchHistory(username: username, platform: .tvOS)
+        loadRecentSearches()
     }
     
     private func loadRecentSearches() {
-        if let searches = userDefaults.stringArray(forKey: recentSearchesKey) {
-            recentSearches = searches
-        }
-    }
-    
-    public func addToRecentSearches(username: String) {
-        guard !username.isEmpty else { return }
-        
-        // Remove if exists
-        if let index = recentSearches.firstIndex(of: username) {
-            recentSearches.remove(at: index)
-        }
-        
-        // Add to the beginning
-        recentSearches.insert(username, at: 0)
-        
-        // Limit to max items
-        if recentSearches.count > maxRecentSearches {
-            recentSearches = Array(recentSearches.prefix(maxRecentSearches))
-        }
-        
-        // Save
-        userDefaults.set(recentSearches, forKey: recentSearchesKey)
+        recentSearches = searchHistoryUseCase.loadSearchHistory(for: .tvOS)
     }
     
     public func selectFeaturedUser(_ username: String) {
@@ -60,8 +51,8 @@ public final class tvOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func clearRecentSearches() {
+        searchHistoryUseCase.clearSearchHistory(for: .tvOS)
         recentSearches = []
-        userDefaults.removeObject(forKey: recentSearchesKey)
     }
 }
 

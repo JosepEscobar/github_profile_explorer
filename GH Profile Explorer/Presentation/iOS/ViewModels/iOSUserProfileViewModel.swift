@@ -4,19 +4,6 @@ import Foundation
 // MARK: - UI Models
 public final class iOSUserProfileViewModel: UserProfileViewModel {
     private enum Constants {
-        enum Keys {
-            static let searchHistory = "searchHistory"
-        }
-        
-        enum Values {
-            static let maxHistoryItems = 10
-            static let newItemIndex = 0
-        }
-        
-        enum URLs {
-            static let githubBaseURL = "https://github.com/"
-        }
-        
         enum LocalizationKeys {
             static let emptyUsername = "empty_username"
         }
@@ -33,42 +20,45 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
     @Published public var userUI: UserUIModel?
     @Published public var repositoriesUI: [RepositoryUIModel] = []
     
-    private let userDefaults: UserDefaults
-    
-    // UI Computed properties
-    public var filteredRepositoriesUI: [RepositoryUIModel] {
-        var filtered = repositoriesUI
-        
-        // Apply text search if any
-        if !searchText.isEmpty {
-            filtered = filtered.filter { repo in
-                repo.name.localizedCaseInsensitiveContains(searchText) ||
-                (repo.description?.localizedCaseInsensitiveContains(searchText) ?? false)
-            }
-        }
-        
-        // Apply language filter if selected
-        if let language = selectedLanguageFilter {
-            filtered = filtered.filter { $0.language == language }
-        }
-        
-        return filtered
-    }
-    
-    public var languagesUI: [String] {
-        let allLanguages = repositoriesUI.compactMap { $0.language }
-        return Array(Set(allLanguages)).sorted()
-    }
+    // Use cases
+    private let searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
+    private let openURLUseCase: OpenURLUseCaseProtocol
+    private let filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
     
     // MARK: - Lifecycle
     
-    public override init(
+    public init(
+        fetchUserUseCase: FetchUserUseCaseProtocol,
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
+        searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol,
+        openURLUseCase: OpenURLUseCaseProtocol,
+        filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
+    ) {
+        self.searchHistoryUseCase = searchHistoryUseCase
+        self.openURLUseCase = openURLUseCase
+        self.filterRepositoriesUseCase = filterRepositoriesUseCase
+        
+        super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
+        
+        loadInitialData()
+    }
+    
+    // Inicializador conveniente para mantener compatibilidad
+    public convenience override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
     ) {
-        self.userDefaults = UserDefaults.standard
-        super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
-        loadSearchHistory()
+        self.init(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase,
+            searchHistoryUseCase: ManageSearchHistoryUseCase(),
+            openURLUseCase: OpenURLUseCase(),
+            filterRepositoriesUseCase: FilterRepositoriesUseCase()
+        )
+    }
+    
+    private func loadInitialData() {
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .iOS)
     }
     
     // Override state property to update UI models when it changes
@@ -93,6 +83,26 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
         }
     }
     
+    // UI Computed properties
+    public var filteredRepositoriesUI: [RepositoryUIModel] {
+        if case .loaded(_, let repositories) = state {
+            let filtered = filterRepositoriesUseCase.filterBySearchTextAndLanguage(
+                repositories: repositories,
+                searchText: searchText,
+                language: selectedLanguageFilter
+            )
+            return filtered.map { RepositoryUIModel(from: $0) }
+        }
+        return []
+    }
+    
+    public var languagesUI: [String] {
+        if case .loaded(_, let repositories) = state {
+            return filterRepositoriesUseCase.extractUniqueLanguages(from: repositories)
+        }
+        return []
+    }
+    
     // MARK: - Public Methods
     
     public override func fetchUserProfile() {
@@ -102,34 +112,13 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
         }
         
         super.fetchUserProfile()
-        addToSearchHistory(username: username)
-    }
-    
-    // MARK: - Private Methods
-    
-    private func loadSearchHistory() {
-        if let history = userDefaults.stringArray(forKey: Constants.Keys.searchHistory) {
-            searchHistory = history
-        }
-    }
-    
-    private func addToSearchHistory(username: String) {
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-        }
-        
-        searchHistory.insert(username, at: Constants.Values.newItemIndex)
-        
-        if searchHistory.count > Constants.Values.maxHistoryItems {
-            searchHistory = Array(searchHistory.prefix(Constants.Values.maxHistoryItems))
-        }
-        
-        userDefaults.set(searchHistory, forKey: Constants.Keys.searchHistory)
+        searchHistoryUseCase.addToSearchHistory(username: username, platform: .iOS)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .iOS)
     }
     
     public func clearSearchHistory() {
+        searchHistoryUseCase.clearSearchHistory(for: .iOS)
         searchHistory = []
-        userDefaults.removeObject(forKey: Constants.Keys.searchHistory)
     }
     
     public func selectHistoryItem(at index: Int) {
@@ -141,7 +130,7 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
     
     public func openGitHubProfile() -> URL? {
         guard let username = userUI?.login else { return nil }
-        return URL(string: Constants.URLs.githubBaseURL + username)
+        return openURLUseCase.createGitHubProfileURL(for: username)
     }
 }
 #endif 

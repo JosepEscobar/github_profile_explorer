@@ -13,9 +13,10 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
     @Published public var selectedLanguageFilter: String? = nil
     @Published public var urlToOpen: URL? = nil
     
-    private let userDefaults: UserDefaults
-    private let historyKey = "visionSearchHistory"
-    private let maxHistoryItems = 10
+    // Use cases
+    private let searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
+    private let openURLUseCase: OpenURLUseCaseProtocol
+    private let filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
     
     // Referencias para la escena 3D
     public var user: User {
@@ -33,46 +34,59 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public var filteredRepositories: [Repository] {
-        var filtered = repositories
-        
-        // Apply text search if any
-        if !searchQuery.isEmpty {
-            filtered = filtered.filter { repo in
-                let nameMatch = repo.name.localizedCaseInsensitiveContains(searchQuery)
-                let descMatch = repo.description?.localizedCaseInsensitiveContains(searchQuery) ?? false
-                return nameMatch || descMatch
-            }
+        if !searchQuery.isEmpty || selectedLanguageFilter != nil {
+            return filterRepositoriesUseCase.filterBySearchTextAndLanguage(
+                repositories: repositories,
+                searchText: searchQuery,
+                language: selectedLanguageFilter
+            )
         }
-        
-        // Apply language filter if selected
-        if let language = selectedLanguageFilter {
-            filtered = filtered.filter { $0.language == language }
-        }
-        
-        return filtered
+        return repositories
     }
     
     public var languages: [String] {
-        let allLanguages = repositories.compactMap { $0.language }
-        return Array(Set(allLanguages)).sorted()
+        return filterRepositoriesUseCase.extractUniqueLanguages(from: repositories)
     }
     
     // Constructor adicional para facilitar el preview
     public convenience init(repositories: [Repository], user: User) {
         self.init(
             fetchUserUseCase: FetchUserUseCase(repository: UserRepository(networkClient: NetworkClient())),
-            fetchRepositoriesUseCase: FetchUserRepositoriesUseCase(repository: UserRepository(networkClient: NetworkClient()))
+            fetchRepositoriesUseCase: FetchUserRepositoriesUseCase(repository: UserRepository(networkClient: NetworkClient())),
+            searchHistoryUseCase: ManageSearchHistoryUseCase(),
+            openURLUseCase: OpenURLUseCase(),
+            filterRepositoriesUseCase: FilterRepositoriesUseCase()
         )
         self.state = .loaded(user, repositories)
     }
     
-    public override init(
+    public init(
+        fetchUserUseCase: FetchUserUseCaseProtocol,
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
+        searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol,
+        openURLUseCase: OpenURLUseCaseProtocol,
+        filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
+    ) {
+        self.searchHistoryUseCase = searchHistoryUseCase
+        self.openURLUseCase = openURLUseCase
+        self.filterRepositoriesUseCase = filterRepositoriesUseCase
+        
+        super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
+        loadSearchHistory()
+    }
+    
+    // Inicializador conveniente para mantener compatibilidad
+    public convenience override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
     ) {
-        self.userDefaults = UserDefaults.standard
-        super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
-        loadSearchHistory()
+        self.init(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase,
+            searchHistoryUseCase: ManageSearchHistoryUseCase(),
+            openURLUseCase: OpenURLUseCase(),
+            filterRepositoriesUseCase: FilterRepositoriesUseCase()
+        )
     }
     
     public override func fetchUserProfile() {
@@ -82,32 +96,17 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
         }
         
         super.fetchUserProfile()
-        addToSearchHistory(username: username)
+        searchHistoryUseCase.addToSearchHistory(username: username, platform: .visionOS)
+        loadSearchHistory()
     }
     
     private func loadSearchHistory() {
-        if let history = userDefaults.stringArray(forKey: historyKey) {
-            searchHistory = history
-        }
-    }
-    
-    private func addToSearchHistory(username: String) {
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-        }
-        
-        searchHistory.insert(username, at: 0)
-        
-        if searchHistory.count > maxHistoryItems {
-            searchHistory = Array(searchHistory.prefix(maxHistoryItems))
-        }
-        
-        userDefaults.set(searchHistory, forKey: historyKey)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .visionOS)
     }
     
     public func clearSearchHistory() {
+        searchHistoryUseCase.clearSearchHistory(for: .visionOS)
         searchHistory = []
-        userDefaults.removeObject(forKey: historyKey)
     }
     
     public func selectHistoryItem(at index: Int) {
@@ -130,9 +129,7 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func openUserInGitHub() {
-        if let url = URL(string: "https://github.com/\(user.login)") {
-            urlToOpen = url
-        }
+        urlToOpen = openURLUseCase.createGitHubProfileURL(for: user.login)
     }
     
     public func openURL(_ url: URL) {
@@ -151,32 +148,7 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func languageColor(for language: String) -> Color {
-        switch language.lowercased() {
-        case "swift":
-            return .orange
-        case "javascript", "typescript":
-            return .yellow
-        case "python":
-            return .blue
-        case "kotlin":
-            return .purple
-        case "java":
-            return .red
-        case "c++", "c":
-            return .pink
-        case "ruby":
-            return .red
-        case "go":
-            return .cyan
-        case "rust":
-            return .brown
-        case "html":
-            return .orange
-        case "css":
-            return .blue
-        default:
-            return .gray
-        }
+        return LanguageColorUtils.color(for: language)
     }
     
     // MARK: - Funcionalidad 3D
@@ -249,95 +221,60 @@ public final class VisionOSUserProfileViewModel: UserProfileViewModel {
         return avatarModel
     }
     
+    // Crea modelos 3D para representar los repositorios del usuario
     private func createRepositoryModels(for repositories: [Repository]) -> [ModelEntity] {
-        // Mostramos hasta 10 repositorios para evitar sobrecarga
-        let reposToShow = Array(repositories.prefix(min(repositories.count, 10)))
-        
-        var repoEntities: [ModelEntity] = []
-        
-        for repo in reposToShow {
-            // Creamos un cubo para el repositorio, tamaño basado en estrellas
-            let starMultiplier = max(0.5, min(1.5, (Float(repo.stargazersCount) / 100) + 0.5))
-            let boxSize: Float = 0.3 * starMultiplier
+        return repositories.map { repository in
+            let size: Float = 0.3
+            let mesh = MeshResource.generateBox(size: [size, size, size])
             
-            let mesh = MeshResource.generateBox(size: [boxSize, boxSize, boxSize])
+            // Usar el color del lenguaje si existe
+            let color: Color = repository.language.map { LanguageColorUtils.color(for: $0) } ?? .gray
+            let material = SimpleMaterial(color: UIColor(color), isMetallic: true)
             
-            // Color basado en el lenguaje
-            let color = colorForLanguage(repo.language)
-            let material = SimpleMaterial(color: color, isMetallic: true)
+            let entity = ModelEntity(mesh: mesh, materials: [material])
+            entity.name = repository.name
+            entity.components[RepositoryComponent.self] = RepositoryComponent(repository: repository)
             
-            let repoEntity = ModelEntity(mesh: mesh, materials: [material])
-            
-            // Añadimos texto con el nombre del repositorio
-            if let nameText = createTextModel(text: repo.name) {
-                nameText.position = [0, boxSize + 0.1, 0]
-                repoEntity.addChild(nameText)
+            // Añadir texto con el nombre del repositorio
+            if let nameText = createTextModel(text: repository.name) {
+                nameText.position = [0, size + 0.1, 0]
+                nameText.scale = [0.5, 0.5, 0.5]
+                entity.addChild(nameText)
             }
             
-            // Añadimos estrellas para repositorios populares
-            if repo.stargazersCount > 0 {
-                if let starText = createTextModel(text: "★ \(repo.stargazersCount)") {
-                    starText.position = [0, boxSize + 0.2, 0]
-                    repoEntity.addChild(starText)
-                }
-            }
-            
-            repoEntities.append(repoEntity)
+            return entity
         }
-        
-        return repoEntities
     }
     
-    private func arrangeRepositoriesInCircle(entities: [Entity], parent: Entity) {
-        let count = entities.count
-        let radius: Float = 2.5 // Distancia desde el centro
+    // Organiza los repositorios en un círculo alrededor del usuario
+    private func arrangeRepositoriesInCircle(entities: [ModelEntity], parent: Entity) {
+        let radius: Float = 3.0
+        let angleStep = (2.0 * Float.pi) / Float(entities.count)
         
         for (index, entity) in entities.enumerated() {
-            // Calculamos posición en círculo
-            let angle = (Float(index) / Float(count)) * 2 * .pi
+            let angle = Float(index) * angleStep
             let x = radius * sin(angle)
-            let z = radius * cos(angle) - 2 // -2 para desplazar del centro
-            
-            // Altura varía ligeramente para interés visual
-            let heightVariation: Float = Float.random(in: -0.3...0.3)
-            let y: Float = 1.0 + heightVariation
-            
-            entity.position = [x, y, z]
-            
+            let z = radius * cos(angle)
+            entity.position = [x, 1.0, z - 2.0]
             parent.addChild(entity)
-        }
-    }
-    
-    private func colorForLanguage(_ language: String?) -> UIColor {
-        guard let language = language else { return UIColor.gray }
-        
-        switch language.lowercased() {
-        case "swift":
-            return UIColor.orange
-        case "javascript", "typescript":
-            return UIColor.yellow
-        case "python":
-            return UIColor.blue
-        case "kotlin":
-            return UIColor.purple
-        case "java":
-            return UIColor.red
-        case "c++", "c":
-            return UIColor.systemPink
-        case "ruby":
-            return UIColor.red
-        case "go":
-            return UIColor.cyan
-        case "rust":
-            return UIColor.brown
-        case "html":
-            return UIColor.orange
-        case "css":
-            return UIColor.blue
-        default:
-            return UIColor.lightGray
         }
     }
 }
 
+// Componente para almacenar información del repositorio
+struct RepositoryComponent: Component {
+    let repository: Repository
+    
+    init(repository: Repository) {
+        self.repository = repository
+    }
+}
+
+// Clase ficticia para la demostración
+struct ImmersiveSpaceRegistration {
+    static func updateImmersiveSpace(with repositories: [Repository], user: User) {
+        // Esta función simula la actualización del espacio inmersivo
+        // En una implementación real, interactuaría con RealityKit
+    }
+}
 #endif 
