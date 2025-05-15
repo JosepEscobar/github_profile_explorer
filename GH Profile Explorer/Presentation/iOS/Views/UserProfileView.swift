@@ -125,8 +125,10 @@ struct UserProfileView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.leading, 16)
+                    .padding(.trailing, 16)
                 }
+                .padding(.horizontal, -16)
                 
                 // Search for repositories
                 SearchBarView(
@@ -134,6 +136,8 @@ struct UserProfileView: View {
                     placeholder: "Buscar repositorios"
                 )
                 .padding(.top, 8)
+                .padding(.bottom, 8)
+                .padding(.leading, -16)
                 
                 // Repositories list
                 if filteredRepositories.isEmpty {
@@ -155,7 +159,6 @@ struct UserProfileView: View {
                     VStack(spacing: 1) {
                         ForEach(filteredRepositories) { repository in
                             RepositoryItemView(repository: repository)
-                                .padding(.horizontal)
                                 .padding(.vertical, 4)
                                 .background(Color.primary.opacity(0.05))
                             
@@ -168,10 +171,9 @@ struct UserProfileView: View {
                     .background(Color.primary.opacity(0.05))
                     .cornerRadius(12)
                     .shadow(color: .black.opacity(0.05), radius: 5)
-                    .padding(.horizontal)
                 }
             }
-            .padding()
+            .padding(16)
         }
         .background(Color.secondary.opacity(0.05))
         #if os(iOS)

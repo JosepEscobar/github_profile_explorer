@@ -44,6 +44,10 @@ struct SearchUserView: View {
                         searchHistoryView
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.top, 16)
+                .padding(.bottom, 16)
+                
                 
                 // Search Button
                 Button {
