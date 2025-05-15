@@ -118,7 +118,7 @@ struct SearchUserView: View {
                     
                     HStack(spacing: Constants.Layout.vStackSpacing) {
                         TechnologyBadgeView(name: "Swift", iconName: "swift")
-                        TechnologyBadgeView(name: "SwiftUI", iconName: "swiftui")
+                        TechnologyBadgeView(name: "SwiftUI", iconName: "swift")
                         TechnologyBadgeView(name: "Async/Await", iconName: "clock.arrow.2.circlepath")
                     }
                 }
