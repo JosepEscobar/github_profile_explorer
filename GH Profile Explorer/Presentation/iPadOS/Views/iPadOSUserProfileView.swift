@@ -142,9 +142,7 @@ struct iPadOSUserProfileView: View {
                         #if !os(tvOS)
                         .swipeActions {
                             Button(role: .destructive) {
-                                if let index = viewModel.searchHistory.firstIndex(of: username) {
-                                    viewModel.removeFromHistory(username: username)
-                                }
+                                viewModel.removeFromHistory(username: username)
                             } label: {
                                 Label("Eliminar", systemImage: "trash")
                             }

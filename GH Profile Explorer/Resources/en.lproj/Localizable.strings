@@ -1,0 +1,32 @@
+// Common
+"error" = "Error";
+"ok" = "OK";
+"search" = "Search";
+"clear" = "Clear";
+"retry" = "Retry";
+
+// Search View
+"app_title" = "GitHub Profile Explorer";
+"app_subtitle" = "Search for GitHub developer profiles";
+"search_placeholder" = "Search user";
+"search_button" = "Search";
+"loading_user" = "Searching user...";
+"recent_searches" = "Recent searches";
+"footer_text" = "Developed with 💙 using";
+"default_error" = "An error occurred";
+
+// Profile View
+"loading_profile" = "Loading profile...";
+"error_prefix" = "Error: ";
+"no_profile" = "No profile selected.";
+"search_repositories" = "Search repositories";
+
+// Repository List
+"no_repositories" = "No repositories found";
+"search_suggestion" = "Try another search or filter";
+
+// Languages
+"all_languages" = "All";
+
+// Errors
+"empty_username" = "Username cannot be empty"; 

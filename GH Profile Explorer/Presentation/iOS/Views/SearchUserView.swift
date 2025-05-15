@@ -7,81 +7,116 @@ struct SearchUserView: View {
     @State private var showAlert = false
     @State private var alertError: AppError?
     
+    private enum Constants {
+        enum Images {
+            static let logo = "person.fill.viewfinder"
+            static let clock = "clock"
+        }
+        
+        enum Keys {
+            static let title = "app_title"
+            static let subtitle = "app_subtitle"
+            static let searchPlaceholder = "search_placeholder"
+            static let searchButton = "search_button"
+            static let loadingMessage = "loading_user"
+            static let recentSearches = "recent_searches"
+            static let clearButton = "clear"
+            static let footer = "footer_text"
+            static let errorTitle = "error"
+            static let errorDismiss = "ok"
+            static let defaultErrorMessage = "default_error"
+        }
+        
+        enum Layout {
+            static let logoSize: CGFloat = 60
+            static let logoBottomPadding: CGFloat = 8
+            static let contentSpacing: CGFloat = 24
+            static let vStackSpacing: CGFloat = 8
+            static let searchBarSpacing: CGFloat = 12
+            static let topPadding: CGFloat = 32
+            static let horizontalPadding: CGFloat = 8
+            static let buttonPadding: CGFloat = 32
+            static let cornerRadius: CGFloat = 10
+            static let historyItemSpacing: CGFloat = 0
+            static let historyHeaderPadding: CGFloat = 8
+            static let shadowRadius: CGFloat = 5
+        }
+        
+        enum Colors {
+            static let background = Color.secondary.opacity(0.05)
+            static let shadow = Color.black.opacity(0.1)
+        }
+    }
+    
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                // Logo
-                VStack(spacing: 8) {
-                    Image(systemName: "person.fill.viewfinder")
-                        .font(.system(size: 60))
+            VStack(spacing: Constants.Layout.contentSpacing) {
+                VStack(spacing: Constants.Layout.vStackSpacing) {
+                    Image(systemName: Constants.Images.logo)
+                        .font(.system(size: Constants.Layout.logoSize))
                         .foregroundColor(.blue)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, Constants.Layout.logoBottomPadding)
                     
-                    Text("GitHub Profile Explorer")
+                    Text(Constants.Keys.title.localized)
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    Text("Busca perfiles de desarrolladores en GitHub")
+                    Text(Constants.Keys.subtitle.localized)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(.top, 32)
+                .padding(.top, Constants.Layout.topPadding)
                 
-                // Search Bar
-                VStack(spacing: 12) {
+                VStack(spacing: Constants.Layout.searchBarSpacing) {
                     SearchBarView(
                         text: $viewModel.username,
-                        placeholder: "Buscar usuario",
+                        placeholder: Constants.Keys.searchPlaceholder.localized,
                         onSubmit: viewModel.fetchUserProfile
                     )
                     .onTapGesture {
                         viewModel.isShowingSearchHistory = true
                     }
                     
-                    // Search History
                     if viewModel.isShowingSearchHistory && !viewModel.searchHistory.isEmpty {
                         searchHistoryView
                     }
                 }
-                .padding(.horizontal, 8)
-                .padding(.top, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, Constants.Layout.horizontalPadding)
+                .padding(.top, Constants.Layout.topPadding / 2)
+                .padding(.bottom, Constants.Layout.topPadding / 2)
                 
-                
-                // Search Button
                 Button {
                     viewModel.isShowingSearchHistory = false
                     viewModel.fetchUserProfile()
                 } label: {
-                    Text("Buscar")
+                    Text(Constants.Keys.searchButton.localized)
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: Constants.Layout.cornerRadius)
                                 .fill(Color.blue)
                         )
-                        .padding(.horizontal, 32)
+                        .padding(.horizontal, Constants.Layout.buttonPadding)
                 }
                 .disabled(viewModel.username.isEmpty)
                 .opacity(viewModel.username.isEmpty ? 0.6 : 1)
                 
                 if case .loading = viewModel.state {
-                    LoadingView(message: "Buscando usuario...")
+                    LoadingView(message: Constants.Keys.loadingMessage.localized)
                         .transition(.opacity)
                 }
                 
                 Spacer()
                 
-                // Promotional footer
                 VStack {
-                    Text("Desarrollado con 💙 usando")
+                    Text(Constants.Keys.footer.localized)
                         .font(.caption2)
                         .foregroundColor(.secondary)
                     
-                    HStack(spacing: 8) {
+                    HStack(spacing: Constants.Layout.vStackSpacing) {
                         TechnologyBadgeView(name: "Swift", iconName: "swift")
                         TechnologyBadgeView(name: "SwiftUI", iconName: "swiftui")
                         TechnologyBadgeView(name: "Async/Await", iconName: "clock.arrow.2.circlepath")
@@ -92,7 +127,7 @@ struct SearchUserView: View {
             .animation(.easeInOut, value: viewModel.state)
             .animation(.easeInOut, value: viewModel.isShowingSearchHistory)
             .background(
-                Color.secondary.opacity(0.05)
+                Constants.Colors.background
                     .edgesIgnoringSafeArea(.all)
             )
             .onTapGesture {
@@ -104,8 +139,8 @@ struct SearchUserView: View {
                     set: { if !$0 { viewModel.navigationState = nil } }
                 )
             ) {
-                if case let .loaded(user, repositories) = viewModel.state {
-                    UserProfileView(user: user, repositories: repositories)
+                if case .loaded(_, _) = viewModel.state {
+                    UserProfileView(viewModel: viewModel)
                 }
             }
             .onChange(of: viewModel.state) { oldState, newState in
@@ -120,34 +155,34 @@ struct SearchUserView: View {
             }
             .alert(isPresented: $showAlert, content: {
                 Alert(
-                    title: Text("Error"),
-                    message: Text(alertError?.localizedDescription ?? "An error occurred"),
-                    dismissButton: .default(Text("OK"))
+                    title: Text(Constants.Keys.errorTitle.localized),
+                    message: Text(alertError?.localizedDescription ?? Constants.Keys.defaultErrorMessage.localized),
+                    dismissButton: .default(Text(Constants.Keys.errorDismiss.localized))
                 )
             })
         }
     }
     
     private var searchHistoryView: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: Constants.Layout.historyItemSpacing) {
             HStack {
-                Text("Búsquedas recientes")
+                Text(Constants.Keys.recentSearches.localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
-                Button("Limpiar") {
+                Button(Constants.Keys.clearButton.localized) {
                     viewModel.clearSearchHistory()
                 }
                 .font(.caption)
                 .foregroundColor(.blue)
             }
             .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.top, Constants.Layout.historyHeaderPadding)
             
             Divider()
-                .padding(.top, 8)
+                .padding(.top, Constants.Layout.historyHeaderPadding)
             
             List {
                 ForEach(viewModel.searchHistory.indices, id: \.self) { index in
@@ -155,7 +190,7 @@ struct SearchUserView: View {
                         viewModel.selectHistoryItem(at: index)
                     } label: {
                         HStack {
-                            Image(systemName: "clock")
+                            Image(systemName: Constants.Images.clock)
                                 .foregroundColor(.secondary)
                             Text(viewModel.searchHistory[index])
                                 .foregroundColor(.primary)
@@ -166,30 +201,12 @@ struct SearchUserView: View {
             }
             .listStyle(.plain)
         }
-        .background(Color.primary.opacity(0.05))
-        .cornerRadius(10)
-        .shadow(color: .black.opacity(0.1), radius: 5)
+        .background(Constants.Colors.background)
+        .cornerRadius(Constants.Layout.cornerRadius)
+        .shadow(color: Constants.Colors.shadow, radius: Constants.Layout.shadowRadius)
         .padding(.horizontal)
         .transition(.opacity)
         .zIndex(1)
-    }
-}
-
-struct TechnologyBadgeView: View {
-    let name: String
-    let iconName: String
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: iconName)
-                .font(.caption2)
-            Text(name)
-                .font(.caption2)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(4)
     }
 }
 
