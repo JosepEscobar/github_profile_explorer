@@ -4,6 +4,9 @@
 "search" = "Search";
 "clear" = "Clear";
 "retry" = "Retry";
+"delete_history" = "Delete";
+"current_profile" = "Current Profile";
+"close" = "Close";
 
 // Search View
 "app_title" = "GitHub Profile Explorer";
@@ -20,10 +23,31 @@
 "error_prefix" = "Error: ";
 "no_profile" = "No profile selected.";
 "search_repositories" = "Search repositories";
+"search_repository_placeholder" = "Search repositories";
+"back_to_list" = "Back to list";
+"expand" = "Expand";
+"collapse" = "Collapse";
+"view_on_github" = "View on GitHub";
+"biography" = "Biography";
+"location" = "Location";
+"statistics" = "Statistics";
+"followers" = "Followers";
+"following" = "Following";
+"repos" = "Repos";
+"gists" = "Gists";
+"share_profile" = "Share profile";
+"scan_qr_title" = "Scan to view profile";
+"search_prompt" = "Search a GitHub user";
+"search_description" = "Enter a username in the sidebar to view their profile.";
+"unknown_error" = "An unknown error occurred";
 
 // Repository List
 "no_repositories" = "No repositories found";
 "search_suggestion" = "Try another search or filter";
+"stars" = "Stars";
+"forks" = "Forks";
+"watchers" = "Watchers";
+"topics" = "Topics";
 
 // Languages
 "all_languages" = "All";

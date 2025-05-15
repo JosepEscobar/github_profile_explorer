@@ -1,4 +1,3 @@
-#if os(iOS)
 import Foundation
 
 public struct UserUIModel: Identifiable {
@@ -9,7 +8,9 @@ public struct UserUIModel: Identifiable {
     public let bio: String?
     public let location: String?
     public let followers: String
+    public let following: String
     public let publicRepos: String
+    public let publicGists: String
     
     public init(from domainModel: User) {
         self.id = domainModel.login
@@ -19,11 +20,12 @@ public struct UserUIModel: Identifiable {
         self.bio = domainModel.bio
         self.location = domainModel.location
         self.followers = "\(domainModel.followers)"
+        self.following = "\(domainModel.following)"
         self.publicRepos = "\(domainModel.publicRepos)"
+        self.publicGists = "\(domainModel.publicGists)"
     }
     
     public static func mock() -> UserUIModel {
         UserUIModel(from: User.mock())
     }
-}
-#endif 
+} 

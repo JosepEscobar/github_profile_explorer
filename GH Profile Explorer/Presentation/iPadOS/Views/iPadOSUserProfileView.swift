@@ -2,6 +2,40 @@
 import SwiftUI
 
 struct iPadOSUserProfileView: View {
+    private enum Constants {
+        enum Layout {
+            static let largeScreenWidth = 1000.0
+            static let mediumScreenWidth = 600.0
+            static let detailWidthRatioExpanded = 0.5
+            static let detailWidthRatioCollapsed = 0.4
+            static let detailWidthMaxExpanded = 600.0
+            static let detailWidthMaxCollapsed = 500.0
+            static let repositoriesHeightRatio = 0.6
+        }
+        
+        enum Strings {
+            static let loading = "loading_profile".localized
+            static let searchPrompt = "search_prompt".localized
+            static let searchDescription = "search_description".localized
+            static let scanQRTitle = "scan_qr_title".localized
+            static let githubPrefix = "github.com/"
+            static let closeButton = "close".localized
+            static let errorTitle = "error".localized
+            static let unknownError = "unknown_error".localized
+            static let okButton = "ok".localized
+        }
+        
+        enum Images {
+            static let search = "magnifyingglass"
+            static let qrCode = "qrcode"
+        }
+        
+        enum Colors {
+            static let background = Color.primary.opacity(0.03)
+            static let shadow = Color.black.opacity(0.1)
+        }
+    }
+    
     @StateObject var viewModel: iPadOSUserProfileViewModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -16,7 +50,7 @@ struct iPadOSUserProfileView: View {
                 iPadOSSidebarView(
                     username: $viewModel.username,
                     searchHistory: viewModel.searchHistory,
-                    currentUser: viewModel.currentUser,
+                    currentUser: viewModel.userUI,
                     onSearch: viewModel.fetchUserProfile,
                     onSelectFromHistory: viewModel.selectFromHistory,
                     onClearHistory: viewModel.clearSearchHistory,
@@ -24,17 +58,17 @@ struct iPadOSUserProfileView: View {
                     onOpenInSafari: viewModel.openInSafari
                 )
             } detail: {
-                if case let .loaded(user, repositories) = viewModel.state {
-                    detailContent(user: user, repositories: repositories, geometry: geometry)
+                if case .loaded = viewModel.state, let user = viewModel.userUI {
+                    detailContent(user: user, repositories: viewModel.repositoriesUI, geometry: geometry)
                 } else if case .loading = viewModel.state {
-                    LoadingView(message: "Cargando perfil...", isFullScreen: true)
+                    LoadingView(message: Constants.Strings.loading, isFullScreen: true)
                 } else if case let .error(appError) = viewModel.state {
                     ErrorView(error: appError, retryAction: viewModel.fetchUserProfile)
                 } else {
                     ContentUnavailableView {
-                        Label("Busca un usuario de GitHub", systemImage: "magnifyingglass")
+                        Label(Constants.Strings.searchPrompt, systemImage: Constants.Images.search)
                     } description: {
-                        Text("Ingresa un nombre de usuario en la barra lateral para ver su perfil.")
+                        Text(Constants.Strings.searchDescription)
                     }
                     .onAppear {
                         columnVisibility = .all // Asegura que la barra lateral esté visible cuando no hay resultados
@@ -59,7 +93,7 @@ struct iPadOSUserProfileView: View {
                 
                 // Actualizar visibilidad cuando cambia el estado
                 if case .loaded = newValue {
-                    if geometry.size.width > 1000 {
+                    if geometry.size.width > Constants.Layout.largeScreenWidth {
                         // En pantallas grandes, mostrar ambas columnas
                         columnVisibility = .all
                     } else {
@@ -76,7 +110,7 @@ struct iPadOSUserProfileView: View {
                 
                 // Ajustar visibilidad cuando cambia el tamaño de la pantalla
                 if case .loaded = viewModel.state {
-                    if newValue.width > 1000 {
+                    if newValue.width > Constants.Layout.largeScreenWidth {
                         columnVisibility = .all
                     }
                 }
@@ -89,26 +123,26 @@ struct iPadOSUserProfileView: View {
             }
             .alert(isPresented: $showError) {
                 Alert(
-                    title: Text("Error"),
-                    message: Text(error?.localizedDescription ?? "Ha ocurrido un error desconocido"),
-                    dismissButton: .default(Text("OK"))
+                    title: Text(Constants.Strings.errorTitle),
+                    message: Text(error?.localizedDescription ?? Constants.Strings.unknownError),
+                    dismissButton: .default(Text(Constants.Strings.okButton))
                 )
             }
             .sheet(isPresented: $viewModel.showUserQRCode) {
-                if case let .loaded(user, _) = viewModel.state {
+                if let user = viewModel.userUI {
                     VStack(spacing: 20) {
-                        Text("Escanea para ver el perfil")
+                        Text(Constants.Strings.scanQRTitle)
                             .font(.headline)
                         
-                        Image(systemName: "qrcode")
+                        Image(systemName: Constants.Images.qrCode)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 200, height: 200)
                         
-                        Text("github.com/\(user.login)")
+                        Text(Constants.Strings.githubPrefix + user.login)
                             .font(.caption)
                         
-                        Button("Cerrar") {
+                        Button(Constants.Strings.closeButton) {
                             viewModel.showUserQRCode = false
                         }
                         .buttonStyle(.bordered)
@@ -126,7 +160,7 @@ struct iPadOSUserProfileView: View {
     }
     
     @ViewBuilder
-    private func detailContent(user: User, repositories: [Repository], geometry: GeometryProxy) -> some View {
+    private func detailContent(user: UserUIModel, repositories: [RepositoryUIModel], geometry: GeometryProxy) -> some View {
         if isCompactWidth(geometry) {
             // Compact (portrait) - stack content vertically
             ScrollView {
@@ -145,6 +179,7 @@ struct iPadOSUserProfileView: View {
                             }
                         }
                     )
+                    .frame(height: geometry.size.height * Constants.Layout.repositoriesHeightRatio)
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -165,10 +200,10 @@ struct iPadOSUserProfileView: View {
                     }
                     .frame(
                         width: viewModel.isDetailExpanded ? 
-                            min(detailGeometry.size.width * 0.5, 600) : 
-                            min(detailGeometry.size.width * 0.4, 500)
+                            min(detailGeometry.size.width * Constants.Layout.detailWidthRatioExpanded, Constants.Layout.detailWidthMaxExpanded) : 
+                            min(detailGeometry.size.width * Constants.Layout.detailWidthRatioCollapsed, Constants.Layout.detailWidthMaxCollapsed)
                     )
-                    .background(Color.primary.opacity(0.03))
+                    .background(Constants.Colors.background)
                     
                     Divider()
                     
@@ -202,7 +237,7 @@ struct iPadOSUserProfileView: View {
     }
     
     private func isCompactWidth(_ geometry: GeometryProxy) -> Bool {
-        return horizontalSizeClass == .compact || geometry.size.width < 600
+        return horizontalSizeClass == .compact || geometry.size.width < Constants.Layout.mediumScreenWidth
     }
 }
 

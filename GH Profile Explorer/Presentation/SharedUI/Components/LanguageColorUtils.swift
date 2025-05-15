@@ -1,7 +1,6 @@
-#if os(iOS)
 import SwiftUI
 
-enum LanguageColorUtils {
+public enum LanguageColorUtils {
     private enum Constants {
         enum Languages {
             static let swift = "swift"
@@ -17,6 +16,10 @@ enum LanguageColorUtils {
             static let rust = "rust"
             static let html = "html"
             static let css = "css"
+            static let php = "php"
+            static let dart = "dart"
+            static let shell = "shell"
+            static let bash = "bash"
         }
         
         enum Colors {
@@ -31,11 +34,15 @@ enum LanguageColorUtils {
             static let rust = Color.brown
             static let html = Color.orange
             static let css = Color.blue
+            static let php = Color.purple
+            static let dart = Color.cyan
+            static let shell = Color.green
+            static let bash = Color.green
             static let defaultColor = Color.gray
         }
     }
     
-    static func color(for language: String) -> Color {
+    public static func color(for language: String) -> Color {
         switch language.lowercased() {
         case Constants.Languages.swift:
             return Constants.Colors.swift
@@ -59,9 +66,14 @@ enum LanguageColorUtils {
             return Constants.Colors.html
         case Constants.Languages.css:
             return Constants.Colors.css
+        case Constants.Languages.php:
+            return Constants.Colors.php
+        case Constants.Languages.dart:
+            return Constants.Colors.dart
+        case Constants.Languages.shell, Constants.Languages.bash:
+            return Constants.Colors.shell
         default:
             return Constants.Colors.defaultColor
         }
     }
-}
-#endif 
+} 

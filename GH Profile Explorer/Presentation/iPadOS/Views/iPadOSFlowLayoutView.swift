@@ -1,6 +1,13 @@
 #if os(iOS)
 import SwiftUI
 
+private enum FlowLayoutConstants {
+    enum Layout {
+        static let defaultSpacing: CGFloat = 8
+        static let estimatedItemWidth: CGFloat = 100
+    }
+}
+
 struct FlowLayout<T: Hashable, V: View>: View {
     let items: [T]
     let spacing: CGFloat
@@ -8,7 +15,7 @@ struct FlowLayout<T: Hashable, V: View>: View {
     
     init(
         items: [T],
-        spacing: CGFloat = 8,
+        spacing: CGFloat = FlowLayoutConstants.Layout.defaultSpacing,
         @ViewBuilder viewBuilder: @escaping (T) -> V
     ) {
         self.items = items
@@ -39,7 +46,7 @@ struct FlowLayout<T: Hashable, V: View>: View {
         
         // No podemos medir vistas reales en tiempo de compilación,
         // así que usamos una estimación
-        let estimatedItemWidth: CGFloat = 100 + spacing 
+        let estimatedItemWidth: CGFloat = FlowLayoutConstants.Layout.estimatedItemWidth + spacing 
         
         for item in items {
             // Si no cabe en la fila actual, crear una nueva
