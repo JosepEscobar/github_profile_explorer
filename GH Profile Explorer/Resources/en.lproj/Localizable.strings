@@ -7,6 +7,7 @@
 "delete_history" = "Delete";
 "current_profile" = "Current Profile";
 "close" = "Close";
+"open_menu" = "Open menu";
 
 // Search View
 "app_title" = "GitHub Profile Explorer";

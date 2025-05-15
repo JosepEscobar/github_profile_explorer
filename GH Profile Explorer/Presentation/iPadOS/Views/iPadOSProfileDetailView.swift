@@ -98,9 +98,6 @@ struct iPadOSProfileDetailView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
-                #if !os(tvOS)
-                .controlSize(.large)
-                #endif
             }
             .frame(maxWidth: .infinity)
             
@@ -151,9 +148,6 @@ struct iPadOSProfileDetailView: View {
             Spacer()
         }
         .padding()
-        .background(Constants.Colors.background)
-        .cornerRadius(Constants.Layout.cornerRadius)
-        .shadow(color: Constants.Colors.shadowColor, radius: 5)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
