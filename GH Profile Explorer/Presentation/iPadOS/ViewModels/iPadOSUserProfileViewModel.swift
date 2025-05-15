@@ -12,6 +12,13 @@ public final class iPadOSUserProfileViewModel: UserProfileViewModel {
     @Published public var orientation: DeviceOrientation = .portrait
     @Published public var urlToOpen: URL? = nil
     
+    public var currentUser: User? {
+        if case let .loaded(user, _) = state {
+            return user
+        }
+        return nil
+    }
+    
     private let userDefaults: UserDefaults
     private let historyKey = "iPadSearchHistory"
     private let maxHistoryItems = 15
