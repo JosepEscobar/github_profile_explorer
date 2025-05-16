@@ -1,0 +1,7 @@
+{
+  "id": 12345,
+  "login": "testuser",
+  "avatar_url": "https://github.com/avatars/testuser.png",
+  "url": "https://api.github.com/users/testuser",
+  "html_url": "https://github.com/testuser"
+} 

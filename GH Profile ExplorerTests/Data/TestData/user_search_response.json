@@ -1,0 +1,29 @@
+{
+  "total_count": 2,
+  "items": [
+    {
+      "id": 12345,
+      "login": "testuser1",
+      "name": "Test User One",
+      "avatar_url": "https://github.com/avatars/testuser1.png",
+      "bio": "Software developer and open source enthusiast",
+      "followers": 100,
+      "following": 50,
+      "location": "San Francisco, CA",
+      "public_repos": 25,
+      "public_gists": 10
+    },
+    {
+      "id": 67890,
+      "login": "testuser2",
+      "name": "Test User Two",
+      "avatar_url": "https://github.com/avatars/testuser2.png",
+      "bio": "Mobile developer and UI/UX designer",
+      "followers": 75,
+      "following": 30,
+      "location": "New York, NY",
+      "public_repos": 15,
+      "public_gists": 5
+    }
+  ]
+} 
