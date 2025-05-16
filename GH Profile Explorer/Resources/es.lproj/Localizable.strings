@@ -41,6 +41,10 @@
 "search_prompt" = "Busca un usuario de GitHub";
 "search_description" = "Ingresa un nombre de usuario en la barra lateral para ver su perfil.";
 "unknown_error" = "Ha ocurrido un error desconocido";
+"github_profile_explorer" = "Explorador de Perfiles GitHub";
+"top_repositories" = "Repositorios Destacados";
+"view_all" = "Ver todos";
+"back_to_search" = "Volver a buscar";
 
 // Repository List
 "no_repositories" = "No se encontraron repositorios";

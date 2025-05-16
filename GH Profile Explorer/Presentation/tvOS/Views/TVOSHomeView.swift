@@ -2,6 +2,53 @@
 import SwiftUI
 
 struct TVOSHomeView: View {
+    private enum Constants {
+        enum Strings {
+            static let appTitle = "github_profile_explorer"
+            static let loading = "loading"
+            static let error = "error"
+            static let ok = "ok"
+            static let searchPlaceholder = "search_github_user"
+            static let featuredUsers = "featured_users"
+            static let recentSearches = "recent_searches"
+            static let search = "search"
+            static let profile = "profile"
+            static let repositories = "repositories"
+        }
+        
+        enum Images {
+            static let logo = "person.fill.viewfinder"
+            static let search = "magnifyingglass"
+            static let profile = "person"
+            static let repositories = "book.closed"
+        }
+        
+        enum Layout {
+            static let mainSpacing: CGFloat = 40
+            static let titleSpacing: CGFloat = 20
+            static let headerTopPadding: CGFloat = 60
+            static let searchHorizontalPadding: CGFloat = 100
+            static let searchItemSpacing: CGFloat = 20
+            static let sectionSpacing: CGFloat = 30
+            static let logoSize: CGFloat = 100
+            static let menuHorizontalSpacing: CGFloat = 40
+            static let menuBottomPadding: CGFloat = 60
+            static let searchFieldPaddingH: CGFloat = 20
+            static let searchFieldPaddingV: CGFloat = 15
+            static let searchFieldCornerRadius: CGFloat = 8
+            static let searchFieldBorderWidth: CGFloat = 4
+            static let delayOnAppear: Double = 0.5
+        }
+        
+        enum Colors {
+            static let gradientStart = Color.blue.opacity(0.2)
+            static let gradientEnd = Color.black
+            static let searchFieldBackground = Color.black.opacity(0.5)
+            static let searchFieldBorder = Color.white
+            static let errorBackground = Color.black.opacity(0.7)
+        }
+    }
+    
     @StateObject var viewModel: tvOSUserProfileViewModel
     @FocusState private var focusedSection: TVSection?
     @State private var showError = false
@@ -17,22 +64,24 @@ struct TVOSHomeView: View {
                     homeScreen
                     
                 case .profile:
-                    if case let .loaded(user, _) = viewModel.state {
-                        TVOSProfileView(user: user)
+                    if let user = viewModel.userUI {
+                        TVOSProfileView(user: user, viewModel: viewModel)
                     }
                     
                 case .repositories:
-                    if case let .loaded(_, repositories) = viewModel.state {
-                        TVOSRepositoriesView(repositories: repositories)
-                    }
+                    // Volvemos a la pantalla de búsqueda si intentamos ir a la sección eliminada
+                    homeScreen
                 }
                 
                 if case .loading = viewModel.state {
-                    LoadingView(message: "Cargando...", isFullScreen: true)
-                        .background(Color.black.opacity(0.7))
+                    LoadingView(
+                        message: Constants.Strings.loading.localized, 
+                        isFullScreen: true
+                    )
+                    .background(Constants.Colors.errorBackground)
                 }
             }
-            .navigationTitle("GitHub Profile Explorer")
+            .navigationTitle(Constants.Strings.appTitle.localized)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -48,9 +97,9 @@ struct TVOSHomeView: View {
             }
             .alert(isPresented: $showError) {
                 Alert(
-                    title: Text("Error"),
+                    title: Text(Constants.Strings.error.localized),
                     message: Text(error?.localizedDescription ?? "An error occurred"),
-                    dismissButton: .default(Text("OK"))
+                    dismissButton: .default(Text(Constants.Strings.ok.localized))
                 )
             }
         }
@@ -58,7 +107,7 @@ struct TVOSHomeView: View {
     
     private var backgroundGradient: some View {
         LinearGradient(
-            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.black]),
+            gradient: Gradient(colors: [Constants.Colors.gradientStart, Constants.Colors.gradientEnd]),
             startPoint: .top,
             endPoint: .bottom
         )
@@ -66,34 +115,37 @@ struct TVOSHomeView: View {
     }
     
     private var homeScreen: some View {
-        VStack(spacing: 40) {
+        VStack(spacing: Constants.Layout.mainSpacing) {
             // Logo and title
-            VStack(spacing: 20) {
-                Image(systemName: "person.fill.viewfinder")
-                    .font(.system(size: 100))
+            VStack(spacing: Constants.Layout.titleSpacing) {
+                Image(systemName: Constants.Images.logo)
+                    .font(.system(size: Constants.Layout.logoSize))
                     .foregroundColor(.white)
                 
-                Text("GitHub Profile Explorer")
+                Text(Constants.Strings.appTitle.localized)
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
             }
-            .padding(.top, 60)
+            .padding(.top, Constants.Layout.headerTopPadding)
             
             // Search section
-            VStack(spacing: 30) {
+            VStack(spacing: Constants.Layout.sectionSpacing) {
                 // Search bar
-                HStack(spacing: 20) {
-                    TextField("Buscar usuario de GitHub", text: $viewModel.username)
+                HStack(spacing: Constants.Layout.searchItemSpacing) {
+                    TextField(Constants.Strings.searchPlaceholder.localized, text: $viewModel.username)
                         .textFieldStyle(.plain)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 15)
+                        .padding(.horizontal, Constants.Layout.searchFieldPaddingH)
+                        .padding(.vertical, Constants.Layout.searchFieldPaddingV)
                         .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.black.opacity(0.5))
+                            RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
+                                .fill(Constants.Colors.searchFieldBackground)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(focusedSection == .search ? Color.white : Color.clear, lineWidth: 4)
+                                    RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
+                                        .stroke(
+                                            focusedSection == .search ? Constants.Colors.searchFieldBorder : Color.clear, 
+                                            lineWidth: Constants.Layout.searchFieldBorderWidth
+                                        )
                                 )
                         )
                         .focused($focusedSection, equals: .search)
@@ -106,24 +158,24 @@ struct TVOSHomeView: View {
                             viewModel.fetchUserProfile()
                         }
                     
-                    SearchButton {
+                    TVOSSearchButton {
                         viewModel.fetchUserProfile()
                     }
                     .focused($focusedSection, equals: .search)
                 }
-                .padding(.horizontal, 100)
+                .padding(.horizontal, Constants.Layout.searchHorizontalPadding)
                 
                 // Featured users
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("USUARIOS DESTACADOS")
+                VStack(alignment: .leading, spacing: Constants.Layout.titleSpacing) {
+                    Text(Constants.Strings.featuredUsers.localized.uppercased())
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding(.horizontal)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 30) {
+                        HStack(spacing: Constants.Layout.sectionSpacing) {
                             ForEach(viewModel.featuredUsers, id: \.self) { username in
-                                FeaturedUserButton(username: username) {
+                                TVOSFeaturedUserButton(username: username) {
                                     viewModel.selectFeaturedUser(username)
                                 }
                                 .focused($focusedSection, equals: .featured)
@@ -140,24 +192,24 @@ struct TVOSHomeView: View {
                 
                 // Recent searches
                 if !viewModel.recentSearches.isEmpty {
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: Constants.Layout.titleSpacing) {
                         HStack {
-                            Text("BÚSQUEDAS RECIENTES")
+                            Text(Constants.Strings.recentSearches.localized.uppercased())
                                 .font(.headline)
                                 .foregroundColor(.white)
                             
                             Spacer()
                             
-                            ClearButton {
+                            TVOSClearButton {
                                 viewModel.clearRecentSearches()
                             }
                         }
                         .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 20) {
+                            HStack(spacing: Constants.Layout.searchItemSpacing) {
                                 ForEach(viewModel.recentSearches, id: \.self) { username in
-                                    RecentSearchButton(username: username) {
+                                    TVOSRecentSearchButton(username: username) {
                                         viewModel.username = username
                                         viewModel.fetchUserProfile()
                                     }
@@ -178,571 +230,27 @@ struct TVOSHomeView: View {
             Spacer()
             
             // Menu footer
-            HStack(spacing: 40) {
-                TVButtonCard(icon: "magnifyingglass", title: "Buscar") {
+            HStack(spacing: Constants.Layout.menuHorizontalSpacing) {
+                TVOSButtonCard(icon: Constants.Images.search, title: Constants.Strings.search.localized) {
                     viewModel.selectedSection = .search
                     focusedSection = .search
                 }
                 
                 if case .loaded = viewModel.state {
-                    TVButtonCard(icon: "person", title: "Perfil") {
+                    TVOSButtonCard(icon: Constants.Images.profile, title: Constants.Strings.profile.localized) {
                         viewModel.selectedSection = .profile
-                    }
-                    
-                    TVButtonCard(icon: "book.closed", title: "Repositorios") {
-                        viewModel.selectedSection = .repositories
                     }
                 }
             }
-            .padding(.bottom, 60)
+            .padding(.bottom, Constants.Layout.menuBottomPadding)
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.Layout.delayOnAppear) {
                 focusedSection = .search
             }
         }
     }
 }
-
-struct TVOSProfileView: View {
-    let user: User
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 40) {
-                // Profile header
-                VStack(spacing: 30) {
-                    AvatarImageView(url: user.avatarURL, size: 220, cornerRadius: 110)
-                        .shadow(color: .blue.opacity(0.5), radius: 20)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white, lineWidth: 6)
-                                .opacity(0.3)
-                        )
-                    
-                    VStack(spacing: 12) {
-                        Text(user.name ?? user.login)
-                            .font(.system(size: 48))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("@\(user.login)")
-                            .font(.title)
-                            .foregroundColor(.gray)
-                    }
-                }
-                .padding(.top, 20)
-                
-                // User stats
-                HStack(spacing: 50) {
-                    StatCard(value: user.followers, title: "Seguidores", icon: "person.2.fill")
-                    StatCard(value: user.following, title: "Siguiendo", icon: "person.badge.plus")
-                    StatCard(value: user.publicRepos, title: "Repositorios", icon: "book.closed.fill")
-                    StatCard(value: user.publicGists, title: "Gists", icon: "text.alignleft")
-                }
-                
-                // Bio
-                if let bio = user.bio, !bio.isEmpty {
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("BIOGRAFÍA")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                        
-                        Text(bio)
-                            .font(.body)
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(30)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.black.opacity(0.4))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-                            )
-                    )
-                    .padding(.horizontal, 80)
-                }
-                
-                // Location
-                if let location = user.location {
-                    HStack {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.blue)
-                        
-                        Text(location)
-                            .foregroundColor(.white)
-                    }
-                    .font(.title2)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.black.opacity(0.4))
-                    )
-                }
-            }
-            .padding(60)
-            .background(Color.black.opacity(0.2))
-        }
-    }
-}
-
-struct TVOSRepositoriesView: View {
-    let repositories: [Repository]
-    @State private var selectedRepository: Repository?
-    @FocusState private var isFocused: Bool
-    
-    var body: some View {
-        VStack {
-            if let selected = selectedRepository {
-                // Repository detail
-                VStack(spacing: 25) {
-                    VStack(spacing: 10) {
-                        Text(selected.name)
-                            .font(.system(size: 48))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        if let language = selected.language {
-                            HStack {
-                                Circle()
-                                    .fill(languageColor(for: language))
-                                    .frame(width: 18, height: 18)
-                                
-                                Text(language)
-                                    .font(.title2)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                    }
-                    
-                    if let description = selected.description, !description.isEmpty {
-                        Text(description)
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 80)
-                    }
-                    
-                    HStack(spacing: 60) {
-                        Label("\(selected.stargazersCount)", systemImage: "star.fill")
-                            .foregroundColor(.yellow)
-                        
-                        Label("\(selected.forksCount)", systemImage: "tuningfork")
-                            .foregroundColor(.gray)
-                        
-                        Label("\(selected.watchersCount)", systemImage: "eye.fill")
-                            .foregroundColor(.gray)
-                    }
-                    .font(.title2)
-                    .padding(.top)
-                    
-                    if !selected.topics.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                ForEach(selected.topics, id: \.self) { topic in
-                                    Text(topic)
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 15)
-                                        .padding(.vertical, 8)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(Color.blue.opacity(0.3))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 16)
-                                                        .stroke(Color.blue.opacity(0.6), lineWidth: 2)
-                                                )
-                                        )
-                                }
-                            }
-                        }
-                        .padding(.top)
-                    }
-                    
-                    Button("Ver en GitHub") {
-                        // Would show QR code in real implementation
-                    }
-                    .buttonStyle(TVFocusableButtonStyle(color: .blue))
-                    .padding(.top, 30)
-                }
-                .padding(40)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.black.opacity(0.4))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-                        )
-                )
-                .padding()
-            }
-            
-            // Repository list
-            Text("REPOSITORIOS")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(.horizontal)
-                .padding(.top, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 30) {
-                    ForEach(repositories) { repo in
-                        Button {
-                            selectedRepository = repo
-                        } label: {
-                            VStack(alignment: .leading, spacing: 15) {
-                                HStack {
-                                    Image(systemName: repo.fork ? "tuningfork" : "book.closed")
-                                        .foregroundColor(repo.fork ? .orange : .blue)
-                                        .font(.title2)
-                                    
-                                    Text(repo.name)
-                                        .lineLimit(1)
-                                        .foregroundColor(.white)
-                                        .font(.title3)
-                                }
-                                
-                                if let description = repo.description, !description.isEmpty {
-                                    Text(description)
-                                        .lineLimit(2)
-                                        .font(.body)
-                                        .foregroundColor(.gray)
-                                }
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    if let language = repo.language {
-                                        HStack(spacing: 4) {
-                                            Circle()
-                                                .fill(languageColor(for: language))
-                                                .frame(width: 12, height: 12)
-                                            
-                                            Text(language)
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        }
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Label("\(repo.stargazersCount)", systemImage: "star.fill")
-                                        .font(.subheadline)
-                                        .foregroundColor(.yellow)
-                                }
-                            }
-                            .padding(20)
-                            .frame(width: 320, height: 200)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(selectedRepository?.id == repo.id ? Color.blue.opacity(0.3) : Color.black.opacity(0.4))
-                            )
-                        }
-                        .buttonStyle(TVFocusableButtonStyle())
-                        .focused($isFocused)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-            }
-        }
-        .onAppear {
-            if let first = repositories.first {
-                selectedRepository = first
-            }
-        }
-    }
-    
-    private func languageColor(for language: String) -> Color {
-        switch language.lowercased() {
-        case "swift":
-            return .orange
-        case "javascript", "typescript":
-            return .yellow
-        case "python":
-            return .blue
-        case "kotlin":
-            return .purple
-        case "java":
-            return .red
-        case "c++", "c":
-            return .pink
-        default:
-            return .gray
-        }
-    }
-}
-
-struct StatCard: View {
-    let value: Int
-    let title: String
-    let icon: String
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 32))
-                .foregroundColor(.blue)
-            
-            Text("\(value)")
-                .font(.system(size: 32))
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.gray)
-        }
-        .frame(width: 180, height: 160)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.black.opacity(0.4))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-                )
-        )
-    }
-}
-
-struct TVFocusableButtonStyle: ButtonStyle {
-    var color: Color = .white
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .brightness(configuration.isPressed ? 0.3 : 0)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .shadow(color: configuration.isPressed ? color : Color.clear, radius: 10)
-            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
-            .contentShape(Rectangle())
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(color, lineWidth: 4)
-                    .opacity(0)
-                    .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
-            )
-    }
-}
-
-struct TVButton: View {
-    let icon: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.headline)
-                Text(title)
-                    .font(.headline)
-            }
-            .foregroundColor(.white)
-            .padding(.horizontal, 25)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.blue)
-            )
-        }
-        .buttonStyle(TVFocusableButtonStyle())
-    }
-}
-
-struct TVMenuButton: View {
-    let icon: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                Text(title)
-                    .font(.headline)
-            }
-            .foregroundColor(.white)
-            .frame(width: 150, height: 100)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.5))
-            )
-        }
-        .buttonStyle(TVFocusableButtonStyle())
-    }
-}
-
-struct TVButtonCard: View {
-    let icon: String
-    let title: String
-    let action: () -> Void
-    @FocusState private var focused: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            .padding()
-            .frame(width: 180, height: 120)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.6))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
-            )
-            .scaleEffect(focused ? 1.1 : 1.0)
-            .animation(.spring(), value: focused)
-        }
-        .buttonStyle(.card)
-        .focused($focused)
-    }
-}
-
-struct SearchButton: View {
-    let action: () -> Void
-    @FocusState private var focused: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .font(.headline)
-                Text("Buscar")
-                    .font(.headline)
-            }
-            .foregroundColor(.white)
-            .padding(.horizontal, 25)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.blue)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
-            )
-            .scaleEffect(focused ? 1.05 : 1.0)
-            .animation(.spring(), value: focused)
-        }
-        .buttonStyle(.card)
-        .focused($focused)
-    }
-}
-
-struct ClearButton: View {
-    let action: () -> Void
-    @FocusState private var focused: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            Text("Limpiar")
-                .foregroundColor(.white)
-                .font(.headline)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.7))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white, lineWidth: focused ? 3 : 0)
-                )
-                .scaleEffect(focused ? 1.05 : 1.0)
-        }
-        .buttonStyle(.card)
-        .focused($focused)
-    }
-}
-
-struct FeaturedUserButton: View {
-    let username: String
-    let action: () -> Void
-    @FocusState private var focused: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 15) {
-                ZStack {
-                    if let url = URL(string: "https://github.com/\(username).png") {
-                        AvatarImageView(url: url, size: 140, cornerRadius: 70)
-                            .shadow(color: .blue.opacity(0.5), radius: focused ? 15 : 5)
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 140, height: 140)
-                            .clipShape(Circle())
-                            .foregroundColor(.gray)
-                    }
-                }
-                .overlay(
-                    Circle()
-                        .stroke(Color.white, lineWidth: focused ? 4 : 0)
-                )
-                
-                Text(username)
-                    .font(.title2)
-                    .foregroundColor(.white)
-            }
-            .frame(width: 180, height: 220)
-            .scaleEffect(focused ? 1.1 : 1.0)
-            .animation(.spring(), value: focused)
-        }
-        .buttonStyle(.card)
-        .focused($focused)
-    }
-}
-
-struct RecentSearchButton: View {
-    let username: String
-    let action: () -> Void
-    @FocusState private var focused: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: "clock")
-                    .foregroundColor(.white)
-                
-                Text(username)
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 25)
-            .padding(.vertical, 20)
-            .frame(height: 70)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.5))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.white, lineWidth: focused ? 4 : 0)
-            )
-            .scaleEffect(focused ? 1.05 : 1.0)
-            .animation(.spring(), value: focused)
-        }
-        .buttonStyle(.card)
-        .focused($focused)
-    }
-}
-
-
 
 #Preview {
     let networkClient = NetworkClient()
