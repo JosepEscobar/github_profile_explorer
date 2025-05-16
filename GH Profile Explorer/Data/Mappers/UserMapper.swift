@@ -39,7 +39,7 @@ struct UserSearchResponse: Decodable {
 }
 
 final class UserMapper {
-    static func mapToDomain(response: UserResponse) throws -> User {
+    static func mapToDomain(response: UserResponseDTO) throws -> User {
         guard let avatarURL = URL(string: response.avatarUrl) else {
             throw AppError.decodingError
         }
@@ -58,7 +58,7 @@ final class UserMapper {
         )
     }
     
-    static func mapOwnerToDomain(response: OwnerResponse) throws -> User {
+    static func mapOwnerToDomain(response: OwnerResponseDTO) throws -> User {
         guard let avatarURL = URL(string: response.avatarUrl) else {
             throw AppError.decodingError
         }
@@ -78,11 +78,11 @@ final class UserMapper {
         )
     }
     
-    static func mapToDomain(responses: [UserResponse]) throws -> [User] {
+    static func mapToDomain(responses: [UserResponseDTO]) throws -> [User] {
         try responses.map { try mapToDomain(response: $0) }
     }
     
-    static func mapSearchResponseToDomain(response: UserSearchResponse) throws -> [User] {
+    static func mapSearchResponseToDomain(response: UserSearchResponseDTO) throws -> [User] {
         try response.items.map { try mapToDomain(response: $0) }
     }
 } 
