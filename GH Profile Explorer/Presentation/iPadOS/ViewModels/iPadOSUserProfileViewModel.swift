@@ -3,73 +3,98 @@ import Foundation
 import SwiftUI
 
 public final class iPadOSUserProfileViewModel: UserProfileViewModel {
+    private enum Constants {
+        enum Layout {
+            static let largeScreenWidth = 1000.0
+        }
+    }
+    
     @Published public var searchHistory: [String] = []
     @Published public var isDetailExpanded: Bool = true
-    @Published public var selectedRepository: Repository?
+    @Published public var selectedRepository: RepositoryUIModel?
     @Published public var searchQuery: String = ""
     @Published public var isSearching: Bool = false
     @Published public var showUserQRCode: Bool = false
     @Published public var orientation: DeviceOrientation = .portrait
     @Published public var urlToOpen: URL? = nil
     
-    private let userDefaults: UserDefaults
-    private let historyKey = "iPadSearchHistory"
-    private let maxHistoryItems = 15
+    // UI Model references
+    @Published public var userUI: UserUIModel?
+    @Published public var repositoriesUI: [RepositoryUIModel] = []
     
-    public override init(
+    // Use cases
+    private let searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol
+    private let openURLUseCase: OpenURLUseCaseProtocol
+    private let filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
+    
+    public init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
-        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol,
+        searchHistoryUseCase: ManageSearchHistoryUseCaseProtocol,
+        openURLUseCase: OpenURLUseCaseProtocol,
+        filterRepositoriesUseCase: FilterRepositoriesUseCaseProtocol
     ) {
-        self.userDefaults = UserDefaults.standard
+        self.searchHistoryUseCase = searchHistoryUseCase
+        self.openURLUseCase = openURLUseCase
+        self.filterRepositoriesUseCase = filterRepositoriesUseCase
+        
         super.init(fetchUserUseCase: fetchUserUseCase, fetchRepositoriesUseCase: fetchRepositoriesUseCase)
         loadSearchHistory()
     }
     
+    // Inicializador conveniente para mantener compatibilidad
+    public convenience override init(
+        fetchUserUseCase: FetchUserUseCaseProtocol,
+        fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol
+    ) {
+        self.init(
+            fetchUserUseCase: fetchUserUseCase,
+            fetchRepositoriesUseCase: fetchRepositoriesUseCase,
+            searchHistoryUseCase: ManageSearchHistoryUseCase(),
+            openURLUseCase: OpenURLUseCase(),
+            filterRepositoriesUseCase: FilterRepositoriesUseCase()
+        )
+    }
+    
+    // Override state property to update UI models when it changes
+    public override var state: ViewState {
+        didSet {
+            Task { @MainActor in
+                updateUIModels()
+            }
+        }
+    }
+    
+    // Method to update UI models based on current state
+    @MainActor
+    private func updateUIModels() {
+        switch state {
+        case .loaded(let user, let repositories):
+            self.userUI = UserUIModel(from: user)
+            self.repositoriesUI = repositories.map { RepositoryUIModel(from: $0) }
+        case .idle, .loading, .error:
+            self.userUI = nil
+            self.repositoriesUI = []
+        }
+    }
+    
     public override func fetchUserProfile() {
         super.fetchUserProfile()
-        addToSearchHistory(username: username)
+        searchHistoryUseCase.addToSearchHistory(username: username, platform: .iPadOS)
     }
     
     private func loadSearchHistory() {
-        if let history = userDefaults.stringArray(forKey: historyKey) {
-            searchHistory = history
-        }
-    }
-    
-    private func addToSearchHistory(username: String) {
-        guard !username.isEmpty else { return }
-        
-        // Remove if exists
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-        }
-        
-        // Add to the beginning
-        searchHistory.insert(username, at: 0)
-        
-        // Limit to max items
-        if searchHistory.count > maxHistoryItems {
-            searchHistory = Array(searchHistory.prefix(maxHistoryItems))
-        }
-        
-        // Save
-        userDefaults.set(searchHistory, forKey: historyKey)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .iPadOS)
     }
     
     public func clearSearchHistory() {
+        searchHistoryUseCase.clearSearchHistory(for: .iPadOS)
         searchHistory = []
-        userDefaults.removeObject(forKey: historyKey)
-    }
-    
-    public func saveSearchHistory() {
-        userDefaults.set(searchHistory, forKey: historyKey)
     }
     
     public func removeFromHistory(username: String) {
-        if let index = searchHistory.firstIndex(of: username) {
-            searchHistory.remove(at: index)
-            saveSearchHistory()
-        }
+        searchHistoryUseCase.removeFromHistory(username: username, platform: .iPadOS)
+        searchHistory = searchHistoryUseCase.loadSearchHistory(for: .iPadOS)
     }
     
     public func selectFromHistory(_ username: String) {
@@ -78,33 +103,39 @@ public final class iPadOSUserProfileViewModel: UserProfileViewModel {
     }
     
     public func openInSafari(username: String) {
-        if let url = URL(string: "https://github.com/\(username)") {
-            urlToOpen = url
-        }
+        urlToOpen = openURLUseCase.createGitHubProfileURL(for: username)
     }
     
-    public func openRepositoryInSafari(_ repository: Repository) {
-        urlToOpen = repository.htmlURL
+    public func openRepositoryInSafari(_ repository: RepositoryUIModel) {
+        if case .loaded(_, let repositories) = state {
+            if let domainRepo = repositories.first(where: { $0.id == repository.id }) {
+                urlToOpen = openURLUseCase.createRepositoryURL(for: domainRepo)
+            }
+        }
     }
     
     public func updateOrientation(_ orientation: DeviceOrientation) {
         self.orientation = orientation
     }
     
-    public var filteredRepositories: [Repository] {
-        guard case let .loaded(_, repositories) = state else {
-            return []
-        }
-        
+    public var filteredRepositories: [RepositoryUIModel] {
         guard !searchQuery.isEmpty else {
-            return repositories
+            return repositoriesUI
         }
         
-        return repositories.filter { repo in
-            repo.name.localizedCaseInsensitiveContains(searchQuery) ||
-            (repo.description?.localizedCaseInsensitiveContains(searchQuery) ?? false) ||
-            (repo.language?.localizedCaseInsensitiveContains(searchQuery) ?? false)
+        if case .loaded(_, let repositories) = state {
+            let filtered = filterRepositoriesUseCase.filterBySearchText(
+                repositories: repositories,
+                searchText: searchQuery
+            )
+            return filtered.map { RepositoryUIModel(from: $0) }
         }
+        
+        return []
+    }
+    
+    public var currentUser: UserUIModel? {
+        return userUI
     }
 }
 

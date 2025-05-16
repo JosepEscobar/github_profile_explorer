@@ -18,17 +18,5 @@ struct GitHubExplorerApp: App {
             VisionOSApp()
             #endif
         }
-        
-        #if os(visionOS)
-        // Registro correcto del espacio inmersivo para visionOS
-        ImmersiveSpace(id: ImmersiveSpaceRegistration.immersiveSpaceID) {
-            ImmersiveGitHubSpace(
-                viewModel: VisionOSUserProfileViewModel(
-                    repositories: Repository.mockArray(),
-                    user: User.mock()
-                )
-            )
-        }
-        #endif
     }
 }

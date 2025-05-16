@@ -1,0 +1,79 @@
+// Common
+"error" = "Error";
+"ok" = "OK";
+"search" = "Buscar";
+"clear" = "Limpiar";
+"retry" = "Reintentar";
+"delete_history" = "Eliminar";
+"current_profile" = "Perfil actual";
+"close" = "Cerrar";
+"open_menu" = "Abrir menú";
+
+// Search View
+"app_title" = "GitHub Profile Explorer";
+"app_subtitle" = "Busca perfiles de desarrolladores en GitHub";
+"search_placeholder" = "Buscar usuario";
+"search_github_user" = "Buscar usuario de GitHub";
+"search_button" = "Buscar";
+"loading_user" = "Buscando usuario...";
+"recent_searches" = "Búsquedas recientes";
+"featured_users" = "Usuarios Destacados";
+"footer_text" = "Desarrollado con 💙 usando";
+"default_error" = "Ha ocurrido un error";
+
+// Profile View
+"loading_profile" = "Cargando perfil...";
+"error_prefix" = "Error: ";
+"no_profile" = "No se ha seleccionado un perfil.";
+"search_repositories" = "Buscar repositorios";
+"search_repository_placeholder" = "Buscar repositorios";
+"back_to_list" = "Volver a la lista";
+"expand" = "Expandir";
+"collapse" = "Comprimir";
+"view_on_github" = "Ver en GitHub";
+"biography" = "Biografía";
+"location" = "Ubicación";
+"statistics" = "Estadísticas";
+"followers" = "Seguidores";
+"following" = "Siguiendo";
+"repos" = "Repos";
+"gists" = "Gists";
+"share_profile" = "Compartir perfil";
+"scan_qr_title" = "Escanea para ver el perfil";
+"search_prompt" = "Busca un usuario de GitHub";
+"search_description" = "Ingresa un nombre de usuario en la barra lateral para ver su perfil.";
+"unknown_error" = "Ha ocurrido un error desconocido";
+"github_profile_explorer" = "Explorador de Perfiles GitHub";
+"top_repositories" = "Repositorios Destacados";
+"view_all" = "Ver todos";
+"back_to_search" = "Volver a buscar";
+
+// Repository List
+"no_repositories" = "No se encontraron repositorios";
+"search_suggestion" = "Intenta con otra búsqueda o filtro";
+"stars" = "Stars";
+"forks" = "Forks";
+"watchers" = "Watchers";
+"topics" = "Temas";
+
+// Languages
+"all_languages" = "Todos";
+
+// Errors
+"empty_username" = "El nombre de usuario no puede estar vacío";
+
+// macOS
+"add_to_favorites" = "Marcar como favorito";
+"open_in_browser" = "Abrir en el navegador";
+"select_option" = "Seleccione una opción";
+"view_profile_on_github" = "Ver perfil en GitHub";
+"repositories" = "Repositorios";
+"no_repositories_found" = "No se encontraron repositorios";
+"open" = "Abrir";
+"no_stats_available" = "No hay estadísticas disponibles";
+"language_distribution" = "Distribución de Lenguajes";
+"total_repositories" = "Total de repositorios con lenguaje definido";
+"current_user" = "Usuario actual";
+"search_user" = "Buscar usuario";
+"favorites" = "Favoritos";
+"no_favorites" = "No hay favoritos"; 
