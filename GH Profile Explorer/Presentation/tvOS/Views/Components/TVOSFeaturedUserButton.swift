@@ -1,27 +1,36 @@
 #if os(tvOS)
 import SwiftUI
+import Kingfisher
 
 struct TVOSFeaturedUserButton: View {
     private enum Constants {
         enum Layout {
-            static let spacing: CGFloat = 8
-            static let avatarSize: CGFloat = 100
-            static let avatarCornerRadius: CGFloat = 50
+            static let spacing: CGFloat = 12
             static let width: CGFloat = 280
             static let height: CGFloat = 160
-            static let borderWidth: CGFloat = 3
-            static let focusScaleEffect: CGFloat = 1.05
-            static let shadowRadius: CGFloat = 12
-            static let defaultShadowRadius: CGFloat = 6
+            static let cardCornerRadius: CGFloat = 10
+            static let borderWidth: CGFloat = 2
+            static let focusScaleEffect: CGFloat = 1.01
+            static let shadowRadius: CGFloat = 10
+            static let defaultShadowRadius: CGFloat = 5
             static let usernameTopPadding: CGFloat = 8
+            static let usernameBottomPadding: CGFloat = 4
+            static let textLeadingPadding: CGFloat = 3
         }
         
         enum Colors {
-            static let shadow = Color.blue.opacity(0.6)
+            static let shadow = Color.blue.opacity(0.5)
             static let border = Color.white
             static let fallbackIcon = Color.gray
-            static let username = Color.white
-            static let background = Color.black.opacity(0.3)
+            static let username = Color.white.opacity(0.9)
+            static let subtitleText = Color.gray.opacity(0.8)
+            static let usernameBackground = Color.black.opacity(0.0)
+            static let cardOverlay = Color.black.opacity(0.2)
+            static let gradient = LinearGradient(
+                colors: [Color.black.opacity(0.0), Color.black.opacity(0.5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
         }
         
         enum Images {
@@ -39,51 +48,70 @@ struct TVOSFeaturedUserButton: View {
     @FocusState private var focused: Bool
     
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: Constants.Layout.spacing) {
-                // Avatar image
-                ZStack {
+        VStack(alignment: .leading, spacing: Constants.Layout.spacing / 2) {
+            // Tarjeta con imagen
+            Button(action: action) {
+                ZStack(alignment: .bottom) {
+                    // Imagen de avatar
                     if let url = URL(string: Constants.URLs.githubAvatarBase + username + Constants.URLs.avatarSuffix) {
-                        AvatarImageView(
-                            url: url,
-                            size: Constants.Layout.avatarSize,
-                            cornerRadius: Constants.Layout.avatarCornerRadius
-                        )
-                        .shadow(
-                            color: Constants.Colors.shadow,
-                            radius: focused ? Constants.Layout.shadowRadius : Constants.Layout.defaultShadowRadius
-                        )
-                    } else {
-                        Image(systemName: Constants.Images.fallbackAvatar)
+                        KFImage(url)
+                            .placeholder {
+                                ZStack {
+                                    Color.gray.opacity(0.2)
+                                    Image(systemName: Constants.Images.fallbackAvatar)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .padding(40)
+                                        .foregroundColor(Constants.Colors.fallbackIcon)
+                                }
+                            }
+                            .retry(maxCount: 3, interval: .seconds(2))
+                            .fade(duration: 0.3)
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: Constants.Layout.avatarSize, height: Constants.Layout.avatarSize)
-                            .clipShape(Circle())
-                            .foregroundColor(Constants.Colors.fallbackIcon)
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: Constants.Layout.width, height: Constants.Layout.height)
+                            .clipped()
+                    } else {
+                        ZStack {
+                            Color.gray.opacity(0.2)
+                            Image(systemName: Constants.Images.fallbackAvatar)
+                                .resizable()
+                                .scaledToFit()
+                                .padding(40)
+                                .foregroundColor(Constants.Colors.fallbackIcon)
+                        }
+                        .frame(width: Constants.Layout.width, height: Constants.Layout.height)
                     }
+                    
+                    // Degradado sutil en la parte inferior
+                    Constants.Colors.gradient
+                        .frame(height: Constants.Layout.height / 3)
+                        .opacity(0.7)
                 }
+                .cornerRadius(Constants.Layout.cardCornerRadius)
                 .overlay(
-                    Circle()
-                        .stroke(Constants.Colors.border, lineWidth: focused ? Constants.Layout.borderWidth : 0)
+                    RoundedRectangle(cornerRadius: Constants.Layout.cardCornerRadius)
+                        .stroke(focused ? Constants.Colors.border : Color.clear, lineWidth: Constants.Layout.borderWidth)
                 )
-                
-                // Username text
+                .shadow(color: Constants.Colors.shadow, radius: focused ? Constants.Layout.shadowRadius : Constants.Layout.defaultShadowRadius)
+            }
+            .buttonStyle(.card)
+            .focused($focused)
+            .scaleEffect(focused ? Constants.Layout.focusScaleEffect : 1.0)
+            .animation(.spring(response: 0.3), value: focused)
+            
+            // Texto del nombre de usuario debajo de la tarjeta
+            VStack(alignment: .leading, spacing: 3) {
                 Text(username)
-                    .font(.headline)
+                    .font(.callout)
                     .fontWeight(.medium)
                     .foregroundColor(Constants.Colors.username)
                     .lineLimit(1)
             }
-            .frame(width: Constants.Layout.width, height: Constants.Layout.height)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(focused ? Constants.Colors.background : Color.clear)
-            )
-            .scaleEffect(focused ? Constants.Layout.focusScaleEffect : 1.0)
-            .animation(.spring(), value: focused)
+            .padding(.top, Constants.Layout.usernameTopPadding)
+            .padding(.bottom, Constants.Layout.usernameBottomPadding)
+            .padding(.leading, Constants.Layout.textLeadingPadding)
         }
-        .buttonStyle(.card)
-        .focused($focused)
     }
 }
 
