@@ -479,6 +479,7 @@ While this was a solo project, I'd like to acknowledge the resources and technol
 <img src="https://img.shields.io/badge/Standing%20on%20the%20Shoulders%20of%20Giants-5A45FF?style=for-the-badge&logo=github&logoColor=white" />
 </div>
 <br>
+
 - **Technical Articles**: Publications from [objc.io](https://www.objc.io), [NSHipster](https://nshipster.com), and [Swift with Majid](https://swiftwithmajid.com) were invaluable resources for implementing advanced SwiftUI patterns and architecture.
 
 - **Podcasts**: [Swift by Sundell](https://www.swiftbysundell.com/podcast/), [Swift Unwrapped](https://spec.fm/podcasts/swift-unwrapped), and [Inside iOS Dev](https://insideiosdev.com) provided deep insights into development best practices.
