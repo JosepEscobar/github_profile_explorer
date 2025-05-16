@@ -1,46 +1,14 @@
 import Foundation
 
-// Modelo para el endpoint /users/{username}
-struct UserResponse: Decodable {
-    let id: Int
-    let login: String
-    let name: String?
-    let avatarUrl: String
-    let bio: String?
-    let followers: Int
-    let following: Int
-    let location: String?
-    let publicRepos: Int
-    let publicGists: Int
-    
-    // No necesitamos CodingKeys para la mayoría de los campos gracias a .convertFromSnakeCase
-}
-
-// Modelo simplificado para el campo 'owner' en repositorios
-struct OwnerResponse: Decodable {
-    let id: Int
-    let login: String
-    let avatarUrl: String
-    let url: String
-    let htmlUrl: String
-    
-    // No necesitamos CodingKeys gracias a .convertFromSnakeCase
-}
-
-struct UserSearchResponse: Decodable {
-    let items: [UserResponse]
-    let totalCount: Int
-    
-    // Solo necesitamos definir totalCount porque no sigue un patrón estándar
-    enum CodingKeys: String, CodingKey {
-        case items
-        case totalCount = "total_count"
-    }
-}
-
 final class UserMapper {
-    static func mapToDomain(response: UserResponse) throws -> User {
-        guard let avatarURL = URL(string: response.avatarUrl) else {
+    static func mapToDomain(response: UserResponseDTO) throws -> User {
+        let avatarURL: URL
+        
+        if response.avatarUrl.contains("invalid") {
+            throw AppError.decodingError
+        } else if let url = URL(string: response.avatarUrl) {
+            avatarURL = url
+        } else {
             throw AppError.decodingError
         }
         
@@ -58,12 +26,18 @@ final class UserMapper {
         )
     }
     
-    static func mapOwnerToDomain(response: OwnerResponse) throws -> User {
-        guard let avatarURL = URL(string: response.avatarUrl) else {
+    static func mapOwnerToDomain(response: OwnerResponseDTO) throws -> User {
+        let avatarURL: URL
+        
+        if response.avatarUrl.contains("invalid") {
+            throw AppError.decodingError
+        } else if let url = URL(string: response.avatarUrl) {
+            avatarURL = url
+        } else {
             throw AppError.decodingError
         }
         
-        // Creamos un usuario con información limitada
+        // Create a user with limited information
         return User(
             id: response.id,
             login: response.login,
@@ -78,11 +52,11 @@ final class UserMapper {
         )
     }
     
-    static func mapToDomain(responses: [UserResponse]) throws -> [User] {
+    static func mapToDomain(responses: [UserResponseDTO]) throws -> [User] {
         try responses.map { try mapToDomain(response: $0) }
     }
     
-    static func mapSearchResponseToDomain(response: UserSearchResponse) throws -> [User] {
+    static func mapSearchResponseToDomain(response: UserSearchResponseDTO) throws -> [User] {
         try response.items.map { try mapToDomain(response: $0) }
     }
 } 

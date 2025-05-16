@@ -9,12 +9,12 @@ public final class UserRepository: UserRepositoryProtocol {
     
     public func fetchUser(username: String) async throws -> User {
         let endpoint = Endpoint.user(username: username)
-        let response: UserResponse = try await networkClient.fetch(endpoint: endpoint)
+        let response: UserResponseDTO = try await networkClient.fetch(endpoint: endpoint)
         return try UserMapper.mapToDomain(response: response)
     }
     
     public func fetchUserRepositories(username: String) async throws -> [Repository] {
-        var allRepositories: [RepositoryResponse] = []
+        var allRepositories: [RepositoryResponseDTO] = []
         var page = 1
         let perPage = 100
         
@@ -25,7 +25,7 @@ public final class UserRepository: UserRepositoryProtocol {
                 perPage: perPage
             )
             
-            let repositories: [RepositoryResponse] = try await networkClient.fetch(endpoint: endpoint)
+            let repositories: [RepositoryResponseDTO] = try await networkClient.fetch(endpoint: endpoint)
             
             allRepositories.append(contentsOf: repositories)
             
@@ -41,7 +41,7 @@ public final class UserRepository: UserRepositoryProtocol {
     
     public func searchUsers(query: String) async throws -> [User] {
         let endpoint = Endpoint.searchUsers(query: query)
-        let response: UserSearchResponse = try await networkClient.fetch(endpoint: endpoint)
+        let response: UserSearchResponseDTO = try await networkClient.fetch(endpoint: endpoint)
         return try UserMapper.mapSearchResponseToDomain(response: response)
     }
 } 

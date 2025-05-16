@@ -45,7 +45,7 @@ public final class tvOSUserProfileViewModel: UserProfileViewModel {
         loadRecentSearches()
     }
     
-    // Inicializador conveniente para mantener compatibilidad
+    // Convenience initializer to maintain compatibility
     public convenience override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol

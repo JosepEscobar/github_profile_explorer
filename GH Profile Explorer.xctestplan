@@ -1,0 +1,53 @@
+{
+  "configurations" : [
+    {
+      "id" : "B36B4BF2-FB68-421E-84BA-1D0EC598A379",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "codeCoverageTargets" : [
+        {
+          "containerPath" : "container:GH Profile Explorer.xcodeproj",
+          "identifier" : "4891D5C22DD4929900F64897",
+          "name" : "GH Profile Explorer"
+        }
+      ],
+      "excludedPackages" : [
+        "Kingfisher",
+        "Nimble",
+        "Quick"
+      ],
+      "targets" : [
+        {
+          "containerPath" : "container:GH Profile Explorer.xcodeproj",
+          "identifier" : "4891D5C22DD4929900F64897",
+          "name" : "GH Profile Explorer"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:GH Profile Explorer.xcodeproj",
+      "identifier" : "4891D5C22DD4929900F64897",
+      "name" : "GH Profile Explorer"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "selectedTags" : {
+        "includeXCTests" : true
+      },
+      "target" : {
+        "containerPath" : "container:GH Profile Explorer.xcodeproj",
+        "identifier" : "4891D5D02DD4929B00F64897",
+        "name" : "GH Profile ExplorerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

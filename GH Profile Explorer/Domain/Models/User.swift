@@ -52,7 +52,7 @@ public struct User: Identifiable, Equatable, Hashable {
         )
     }
     
-    // Implementación de Hashable
+    // Hashable implementation
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

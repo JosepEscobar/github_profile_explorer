@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		48473E612DD75C5200029EA1 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 48473E602DD75C5200029EA1 /* Quick */; };
 		4891D5F02DD493C600F64897 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 4891D5EF2DD493C600F64897 /* Kingfisher */; };
 		4891D5F32DD493D600F64897 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 4891D5F22DD493D600F64897 /* Nimble */; };
 		4891D64A2DD4990E00F64897 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4891D6462DD4990E00F64897 /* .gitignore */; };
@@ -20,19 +21,12 @@
 			remoteGlobalIDString = 4891D5C22DD4929900F64897;
 			remoteInfo = "GH Profile Explorer";
 		};
-		4891D5DC2DD4929B00F64897 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4891D5BB2DD4929900F64897 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4891D5C22DD4929900F64897;
-			remoteInfo = "GH Profile Explorer";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		48448AF52DD76185006DB301 /* GH Profile Explorer.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "GH Profile Explorer.xctestplan"; sourceTree = "<group>"; };
 		4891D5C32DD4929900F64897 /* GH Profile Explorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GH Profile Explorer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4891D5D12DD4929B00F64897 /* GH Profile ExplorerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "GH Profile ExplorerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4891D5DB2DD4929B00F64897 /* GH Profile ExplorerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "GH Profile ExplorerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4891D6462DD4990E00F64897 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -45,11 +39,6 @@
 		4891D5D42DD4929B00F64897 /* GH Profile ExplorerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "GH Profile ExplorerTests";
-			sourceTree = "<group>";
-		};
-		4891D5DE2DD4929B00F64897 /* GH Profile ExplorerUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "GH Profile ExplorerUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -67,14 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48473E612DD75C5200029EA1 /* Quick in Frameworks */,
 				4891D5F32DD493D600F64897 /* Nimble in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4891D5D82DD4929B00F64897 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,10 +67,10 @@
 		4891D5BA2DD4929900F64897 = {
 			isa = PBXGroup;
 			children = (
+				48448AF52DD76185006DB301 /* GH Profile Explorer.xctestplan */,
 				4891D6462DD4990E00F64897 /* .gitignore */,
 				4891D5C52DD4929900F64897 /* GH Profile Explorer */,
 				4891D5D42DD4929B00F64897 /* GH Profile ExplorerTests */,
-				4891D5DE2DD4929B00F64897 /* GH Profile ExplorerUITests */,
 				4891D5C42DD4929900F64897 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,7 +80,6 @@
 			children = (
 				4891D5C32DD4929900F64897 /* GH Profile Explorer.app */,
 				4891D5D12DD4929B00F64897 /* GH Profile ExplorerTests.xctest */,
-				4891D5DB2DD4929B00F64897 /* GH Profile ExplorerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -147,33 +129,11 @@
 			name = "GH Profile ExplorerTests";
 			packageProductDependencies = (
 				4891D5F22DD493D600F64897 /* Nimble */,
+				48473E602DD75C5200029EA1 /* Quick */,
 			);
 			productName = "GH Profile ExplorerTests";
 			productReference = 4891D5D12DD4929B00F64897 /* GH Profile ExplorerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		4891D5DA2DD4929B00F64897 /* GH Profile ExplorerUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4891D5EB2DD4929B00F64897 /* Build configuration list for PBXNativeTarget "GH Profile ExplorerUITests" */;
-			buildPhases = (
-				4891D5D72DD4929B00F64897 /* Sources */,
-				4891D5D82DD4929B00F64897 /* Frameworks */,
-				4891D5D92DD4929B00F64897 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4891D5DD2DD4929B00F64897 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				4891D5DE2DD4929B00F64897 /* GH Profile ExplorerUITests */,
-			);
-			name = "GH Profile ExplorerUITests";
-			packageProductDependencies = (
-			);
-			productName = "GH Profile ExplorerUITests";
-			productReference = 4891D5DB2DD4929B00F64897 /* GH Profile ExplorerUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -192,10 +152,6 @@
 						CreatedOnToolsVersion = 16.3;
 						TestTargetID = 4891D5C22DD4929900F64897;
 					};
-					4891D5DA2DD4929B00F64897 = {
-						CreatedOnToolsVersion = 16.3;
-						TestTargetID = 4891D5C22DD4929900F64897;
-					};
 				};
 			};
 			buildConfigurationList = 4891D5BE2DD4929900F64897 /* Build configuration list for PBXProject "GH Profile Explorer" */;
@@ -211,6 +167,7 @@
 			packageReferences = (
 				4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				4891D5F12DD493D600F64897 /* XCRemoteSwiftPackageReference "Nimble" */,
+				48473E5F2DD75C5200029EA1 /* XCRemoteSwiftPackageReference "Quick" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4891D5C42DD4929900F64897 /* Products */;
@@ -219,7 +176,6 @@
 			targets = (
 				4891D5C22DD4929900F64897 /* GH Profile Explorer */,
 				4891D5D02DD4929B00F64897 /* GH Profile ExplorerTests */,
-				4891D5DA2DD4929B00F64897 /* GH Profile ExplorerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -234,13 +190,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4891D5CF2DD4929B00F64897 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4891D5D92DD4929B00F64897 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -264,13 +213,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4891D5D72DD4929B00F64897 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -278,11 +220,6 @@
 			isa = PBXTargetDependency;
 			target = 4891D5C22DD4929900F64897 /* GH Profile Explorer */;
 			targetProxy = 4891D5D22DD4929B00F64897 /* PBXContainerItemProxy */;
-		};
-		4891D5DD2DD4929B00F64897 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4891D5C22DD4929900F64897 /* GH Profile Explorer */;
-			targetProxy = 4891D5DC2DD4929B00F64897 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -533,50 +470,6 @@
 			};
 			name = Release;
 		};
-		4891D5EC2DD4929B00F64897 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DQZ7G5MLVC;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				MACOSX_DEPLOYMENT_TARGET = 15.4;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.josepescobar.GH-Profile-ExplorerUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = "GH Profile Explorer";
-				XROS_DEPLOYMENT_TARGET = 2.4;
-			};
-			name = Debug;
-		};
-		4891D5ED2DD4929B00F64897 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DQZ7G5MLVC;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				MACOSX_DEPLOYMENT_TARGET = 15.4;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.josepescobar.GH-Profile-ExplorerUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = "GH Profile Explorer";
-				XROS_DEPLOYMENT_TARGET = 2.4;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -607,18 +500,17 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4891D5EB2DD4929B00F64897 /* Build configuration list for PBXNativeTarget "GH Profile ExplorerUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4891D5EC2DD4929B00F64897 /* Debug */,
-				4891D5ED2DD4929B00F64897 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		48473E5F2DD75C5200029EA1 /* XCRemoteSwiftPackageReference "Quick" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Quick";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -638,6 +530,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		48473E602DD75C5200029EA1 /* Quick */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 48473E5F2DD75C5200029EA1 /* XCRemoteSwiftPackageReference "Quick" */;
+			productName = Quick;
+		};
 		4891D5EF2DD493C600F64897 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4891D5EE2DD493C600F64897 /* XCRemoteSwiftPackageReference "Kingfisher" */;

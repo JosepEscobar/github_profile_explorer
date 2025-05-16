@@ -31,7 +31,7 @@ struct iPadOSRegularDetailView: View {
     var body: some View {
         GeometryReader { detailGeometry in
             HStack(spacing: 0) {
-                // Perfil (izquierda)
+                // Profile (left)
                 ScrollView {
                     iPadOSProfileDetailView(
                         user: user,
@@ -48,7 +48,7 @@ struct iPadOSRegularDetailView: View {
                 
                 Divider()
                 
-                // Repositorios (derecha)
+                // Repositories (right)
                 VStack(spacing: 0) {
                     iPadOSRepositorySearchView(
                         searchQuery: searchQuery,

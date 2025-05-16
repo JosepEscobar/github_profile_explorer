@@ -65,6 +65,11 @@ public final class ManageSearchHistoryUseCase: ManageSearchHistoryUseCaseProtoco
         let key = historyKey(for: platform)
         var history = userDefaults.stringArray(forKey: key) ?? []
         
+        // If not in history, do nothing
+        if !history.contains(username) {
+            return
+        }
+        
         if let index = history.firstIndex(of: username) {
             history.remove(at: index)
             userDefaults.set(history, forKey: key)

@@ -1,0 +1,9 @@
+{
+  "id": 12345,
+  "login": "testuser",
+  "avatar_url": "https://github.com/avatars/testuser.png",
+  "followers": 100,
+  "following": 50,
+  "public_repos": 25,
+  "public_gists": 10
+} 

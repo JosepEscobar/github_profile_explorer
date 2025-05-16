@@ -22,14 +22,24 @@ public final class ManageFavoritesUseCase: ManageFavoritesUseCaseProtocol {
     
     public func addToFavorites(username: String) {
         var favorites = loadFavorites()
-        if !favorites.contains(username) {
-            favorites.append(username)
-            userDefaults.set(favorites, forKey: favoritesKey)
+        
+        // If already in favorites, do nothing
+        if favorites.contains(username) {
+            return
         }
+        
+        favorites.append(username)
+        userDefaults.set(favorites, forKey: favoritesKey)
     }
     
     public func removeFromFavorites(username: String) {
         var favorites = loadFavorites()
+        
+        // If not in favorites, do nothing
+        if !favorites.contains(username) {
+            return
+        }
+        
         if let index = favorites.firstIndex(of: username) {
             favorites.remove(at: index)
             userDefaults.set(favorites, forKey: favoritesKey)
