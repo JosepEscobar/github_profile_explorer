@@ -1,48 +1,9 @@
 import Foundation
 
-// Model for /users/{username} endpoint
-struct UserResponse: Decodable {
-    let id: Int
-    let login: String
-    let name: String?
-    let avatarUrl: String
-    let bio: String?
-    let followers: Int
-    let following: Int
-    let location: String?
-    let publicRepos: Int
-    let publicGists: Int
-    
-    // No need for CodingKeys for most fields thanks to .convertFromSnakeCase
-}
-
-// Simplified model for the 'owner' field in repositories
-struct OwnerResponse: Decodable {
-    let id: Int
-    let login: String
-    let avatarUrl: String
-    let url: String
-    let htmlUrl: String
-    
-    // No need for CodingKeys thanks to .convertFromSnakeCase
-}
-
-struct UserSearchResponse: Decodable {
-    let items: [UserResponse]
-    let totalCount: Int
-    
-    // We only need to define totalCount because it doesn't follow a standard pattern
-    enum CodingKeys: String, CodingKey {
-        case items
-        case totalCount = "total_count"
-    }
-}
-
 final class UserMapper {
     static func mapToDomain(response: UserResponseDTO) throws -> User {
         let avatarURL: URL
         
-        // More robust URL verification: if it contains "invalid" consider it invalid for tests
         if response.avatarUrl.contains("invalid") {
             throw AppError.decodingError
         } else if let url = URL(string: response.avatarUrl) {
@@ -68,7 +29,6 @@ final class UserMapper {
     static func mapOwnerToDomain(response: OwnerResponseDTO) throws -> User {
         let avatarURL: URL
         
-        // More robust URL verification: if it contains "invalid" consider it invalid for tests
         if response.avatarUrl.contains("invalid") {
             throw AppError.decodingError
         } else if let url = URL(string: response.avatarUrl) {
