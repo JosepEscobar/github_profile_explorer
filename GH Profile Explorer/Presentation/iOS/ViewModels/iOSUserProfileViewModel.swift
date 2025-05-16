@@ -43,7 +43,7 @@ public final class iOSUserProfileViewModel: UserProfileViewModel {
         loadInitialData()
     }
     
-    // Inicializador conveniente para mantener compatibilidad
+    // Convenience initializer to maintain compatibility
     public convenience override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol

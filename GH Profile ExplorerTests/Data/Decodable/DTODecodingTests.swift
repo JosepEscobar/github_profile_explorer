@@ -9,7 +9,7 @@ class DTODecodingTests: QuickSpec {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             
-            // Configurar la estrategia de decodificación de fechas para repositorios
+            // Configure date decoding strategy for repositories
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -24,17 +24,17 @@ class DTODecodingTests: QuickSpec {
         func loadJSON(from fileName: String) -> Data {
             let testBundle = Bundle(for: DTODecodingTests.self)
             
-            // 1. Buscar primero directamente en el bundle
+            // 1. First look directly in the bundle
             if let fileURL = testBundle.url(forResource: fileName, withExtension: "json") {
                 do {
                     let data = try Data(contentsOf: fileURL)
                     return data
                 } catch {
-                    // Seguir intentando con otros métodos
+                    // Continue trying with other methods
                 }
             }
             
-            // 2. Buscar en el directorio de recursos del bundle
+            // 2. Look in the resource directory of the bundle
             let resourcePath = testBundle.resourcePath ?? ""
             let fileManager = FileManager.default
             var allPaths: [String] = []
@@ -53,26 +53,26 @@ class DTODecodingTests: QuickSpec {
                     let data = try Data(contentsOf: URL(fileURLWithPath: fullPath))
                     return data
                 } catch {
-                    // Seguir intentando con otros métodos
+                    // Continue trying with other methods
                 }
             }
             
-            // 3. Buscar en el directorio TestData
+            // 3. Look in the TestData directory
             let testDataPath = "\(resourcePath)/TestData/\(fileName).json"
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: testDataPath))
                 return data
             } catch {
-                // Seguir intentando con otros métodos
+                // Continue trying with other methods
             }
             
-            // 4. Último recurso: cargar desde una ruta absoluta para pruebas en desarrollo
+            // 4. Last resort: load from an absolute path for development testing
             let devPath = "/Users/josepescobar/Developer/iOS/GH Profile Explorer/GH Profile ExplorerTests/Data/TestData/\(fileName).json"
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: devPath))
                 return data
             } catch {
-                // 5. Crear un mensaje de error detallado para ayudar a diagnosticar el problema
+                // 5. Create a detailed error message to help diagnose the problem
                 let errorMessage = """
                 Failed to load JSON file \(fileName).json from any of these locations:
                 - Bundle direct: \(testBundle.url(forResource: fileName, withExtension: "json") ?? URL(fileURLWithPath: "not found"))
@@ -112,13 +112,13 @@ class DTODecodingTests: QuickSpec {
                 }
                 
                 it("should handle missing optional fields") {
-                    // Given: Un JSON con campos opcionales faltantes
+                    // Given: A JSON with missing optional fields
                     let jsonData = loadJSON(from: "user_response_missing_fields")
                     
                     // When
                     let userDTO = try? decoder.decode(UserResponseDTO.self, from: jsonData)
                     
-                    // Then: Los campos opcionales deberían ser nil
+                    // Then: Optional fields should be nil
                     expect(userDTO).toNot(beNil())
                     expect(userDTO?.id).to(equal(12345))
                     expect(userDTO?.login).to(equal("testuser"))
@@ -129,10 +129,10 @@ class DTODecodingTests: QuickSpec {
                 }
                 
                 it("should fail when decoding invalid JSON") {
-                    // Given: Un JSON inválido para UserResponseDTO
+                    // Given: An invalid JSON for UserResponseDTO
                     let jsonData = loadJSON(from: "user_response_invalid")
                     
-                    // When & Then: Debería lanzar un error de decodificación
+                    // When & Then: Should throw a decoding error
                     expect {
                         try decoder.decode(UserResponseDTO.self, from: jsonData)
                     }.to(throwError { error in
@@ -188,13 +188,13 @@ class DTODecodingTests: QuickSpec {
                     expect(repoDTO?.watchersCount).to(equal(8))
                     expect(repoDTO?.defaultBranch).to(equal("main"))
                     
-                    // Verificar tópicos
+                    // Verify topics
                     expect(repoDTO?.topics?.count).to(equal(3))
                     expect(repoDTO?.topics?[0]).to(equal("swift"))
                     expect(repoDTO?.topics?[1]).to(equal("ios"))
                     expect(repoDTO?.topics?[2]).to(equal("testing"))
                     
-                    // Verificar fechas
+                    // Verify dates
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
                     dateFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -208,13 +208,13 @@ class DTODecodingTests: QuickSpec {
                 }
                 
                 it("should handle missing optional fields") {
-                    // Given: Un JSON con campos opcionales faltantes
+                    // Given: A JSON with missing optional fields
                     let jsonData = loadJSON(from: "repository_response_missing_fields")
                     
                     // When
                     let repoDTO = try? decoder.decode(RepositoryResponseDTO.self, from: jsonData)
                     
-                    // Then: Los campos opcionales deberían ser nil
+                    // Then: Optional fields should be nil
                     expect(repoDTO).toNot(beNil())
                     expect(repoDTO?.id).to(equal(98765))
                     expect(repoDTO?.name).to(equal("awesome-repo"))
@@ -228,28 +228,28 @@ class DTODecodingTests: QuickSpec {
             
             context("UserSearchResponseDTO") {
                 it("should decode correctly from valid JSON") {
-                    // Given - Cargar JSON desde el archivo
+                    // Given - Load JSON from file
                     let jsonData = loadJSON(from: "user_search_response")
                     
                     // When
                     let searchDTO = try? decoder.decode(UserSearchResponseDTO.self, from: jsonData)
                     
                     // Then
-                    expect(searchDTO).toNot(beNil(), description: "El objeto searchDTO no debería ser nil")
-                    expect(searchDTO?.totalCount).to(equal(2), description: "El totalCount debería ser 2")
-                    expect(searchDTO?.items.count).to(equal(2), description: "Deberían haber 2 items")
+                    expect(searchDTO).toNot(beNil(), description: "The searchDTO object should not be nil")
+                    expect(searchDTO?.totalCount).to(equal(2), description: "The totalCount should be 2")
+                    expect(searchDTO?.items.count).to(equal(2), description: "There should be 2 items")
                     
-                    // Verificar el primer usuario
+                    // Verify the first user
                     let firstUser = searchDTO?.items[0]
-                    expect(firstUser?.id).to(equal(12345), description: "El ID del primer usuario debería ser 12345")
-                    expect(firstUser?.login).to(equal("testuser1"), description: "El login del primer usuario debería ser testuser1")
-                    expect(firstUser?.name).to(equal("Test User One"), description: "El nombre del primer usuario debería ser Test User One")
+                    expect(firstUser?.id).to(equal(12345), description: "The ID of the first user should be 12345")
+                    expect(firstUser?.login).to(equal("testuser1"), description: "The login of the first user should be testuser1")
+                    expect(firstUser?.name).to(equal("Test User One"), description: "The name of the first user should be Test User One")
                     
-                    // Verificar el segundo usuario
+                    // Verify the second user
                     let secondUser = searchDTO?.items[1]
-                    expect(secondUser?.id).to(equal(67890), description: "El ID del segundo usuario debería ser 67890")
-                    expect(secondUser?.login).to(equal("testuser2"), description: "El login del segundo usuario debería ser testuser2")
-                    expect(secondUser?.name).to(equal("Test User Two"), description: "El nombre del segundo usuario debería ser Test User Two")
+                    expect(secondUser?.id).to(equal(67890), description: "The ID of the second user should be 67890")
+                    expect(secondUser?.login).to(equal("testuser2"), description: "The login of the second user should be testuser2")
+                    expect(secondUser?.name).to(equal("Test User Two"), description: "The name of the second user should be Test User Two")
                 }
             }
         }

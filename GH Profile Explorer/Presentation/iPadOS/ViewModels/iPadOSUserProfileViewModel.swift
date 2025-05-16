@@ -42,7 +42,7 @@ public final class iPadOSUserProfileViewModel: UserProfileViewModel {
         loadSearchHistory()
     }
     
-    // Inicializador conveniente para mantener compatibilidad
+    // Convenience initializer to maintain compatibility
     public convenience override init(
         fetchUserUseCase: FetchUserUseCaseProtocol,
         fetchRepositoriesUseCase: FetchUserRepositoriesUseCaseProtocol

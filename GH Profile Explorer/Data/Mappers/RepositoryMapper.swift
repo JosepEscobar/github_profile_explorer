@@ -4,7 +4,7 @@ final class RepositoryMapper {
     static func mapToDomain(response: RepositoryResponseDTO) throws -> Repository {
         let htmlURL: URL
         
-        // Verificación más robusta de URLs: si contiene "invalid" considerarla inválida para pruebas
+        // More robust URL verification: if it contains "invalid" consider it invalid for tests
         if response.htmlUrl.contains("invalid") {
             throw AppError.decodingError
         } else if let url = URL(string: response.htmlUrl) {

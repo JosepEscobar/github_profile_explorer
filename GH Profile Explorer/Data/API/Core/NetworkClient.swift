@@ -31,24 +31,16 @@ public final class NetworkClient: NetworkClientProtocol {
                 throw AppError.networkError
             }
             
-            // Para debugging, imprimir el JSON recibido
-            #if DEBUG
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("API Response: \(jsonString)")
-            }
-            #endif
-            
             switch httpResponse.statusCode {
             case 200...299:
                 do {
                     let decoder = JSONDecoder()
-                    // Habilitamos de nuevo la conversión automática
+                    // Enable automatic key conversion
                     decoder.keyDecodingStrategy = .convertFromSnakeCase
                     decoder.dateDecodingStrategy = .iso8601
                     
                     return try decoder.decode(T.self, from: data)
                 } catch {
-                    print("Decoding error: \(error)")
                     throw AppError.decodingError
                 }
             case 404:

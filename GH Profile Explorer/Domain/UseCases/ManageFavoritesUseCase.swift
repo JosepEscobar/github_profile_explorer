@@ -23,7 +23,7 @@ public final class ManageFavoritesUseCase: ManageFavoritesUseCaseProtocol {
     public func addToFavorites(username: String) {
         var favorites = loadFavorites()
         
-        // Si ya está en favoritos, no hacemos nada
+        // If already in favorites, do nothing
         if favorites.contains(username) {
             return
         }
@@ -35,7 +35,7 @@ public final class ManageFavoritesUseCase: ManageFavoritesUseCaseProtocol {
     public func removeFromFavorites(username: String) {
         var favorites = loadFavorites()
         
-        // Si no está en favoritos, no hacemos nada
+        // If not in favorites, do nothing
         if !favorites.contains(username) {
             return
         }

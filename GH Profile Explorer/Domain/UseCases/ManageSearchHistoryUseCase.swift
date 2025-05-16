@@ -65,7 +65,7 @@ public final class ManageSearchHistoryUseCase: ManageSearchHistoryUseCaseProtoco
         let key = historyKey(for: platform)
         var history = userDefaults.stringArray(forKey: key) ?? []
         
-        // Si no está en el historial, no hacemos nada
+        // If not in history, do nothing
         if !history.contains(username) {
             return
         }

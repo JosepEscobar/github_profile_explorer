@@ -26,7 +26,7 @@ struct FlowLayout<T: Hashable, V: View>: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: spacing) {
-                // Calculamos las filas manualmente
+                // Calculate rows manually
                 let rows = calculateRows(containerWidth: geometry.size.width)
                 
                 ForEach(0..<rows.count, id: \.self) { rowIndex in
@@ -44,12 +44,12 @@ struct FlowLayout<T: Hashable, V: View>: View {
         var rows: [[T]] = [[]]
         var currentRowWidth: CGFloat = 0
         
-        // No podemos medir vistas reales en tiempo de compilación,
-        // así que usamos una estimación
+        // We can't measure real views at compile time,
+        // so we use an estimation
         let estimatedItemWidth: CGFloat = FlowLayoutConstants.Layout.estimatedItemWidth + spacing 
         
         for item in items {
-            // Si no cabe en la fila actual, crear una nueva
+            // If it doesn't fit in the current row, create a new one
             if currentRowWidth + estimatedItemWidth > containerWidth {
                 rows.append([item])
                 currentRowWidth = estimatedItemWidth
