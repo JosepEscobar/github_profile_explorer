@@ -107,8 +107,6 @@ struct VisionOSUserProfileView: View {
             static let tryDifferentSearch = "try_different_search"
             static let searchRepositories = "search_repositories"
             static let repositories = "repositories"
-            static let toggleImmersive = "toggle_immersive_view"
-            static let closeImmersive = "close_immersive_view"
             static let recentSearches = "recent_searches"
             static let clearAll = "clear_all"
             static let cancel = "cancel"
@@ -130,8 +128,6 @@ struct VisionOSUserProfileView: View {
         
         enum Images {
             static let search = "magnifyingglass"
-            static let vr = "visionpro"
-            static let close = "xmark"
             static let clock = "clock"
             static let person = "person.fill.questionmark"
         }
@@ -139,16 +135,18 @@ struct VisionOSUserProfileView: View {
     
     @StateObject var viewModel: VisionOSUserProfileViewModel
     @State private var searchText = ""
-    @State private var selectedLanguageFilter: String? = nil
-    @State private var isImmersiveViewActive = false
+    @State private var showSearchBar = true
+    @Environment(\.openURL) private var openURLAction
     
     var body: some View {
         ZStack {
             Constants.Colors.background.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Search bar
-                searchBarSection
+                // Search bar (condicional)
+                if showSearchBar {
+                    searchBarSection
+                }
                 
                 // Main content
                 ScrollView {
@@ -160,11 +158,11 @@ struct VisionOSUserProfileView: View {
                                 onOpenGitHubProfile: viewModel.openUserInGitHub
                             )
                             
-                            // Language filters
-                            languageFilters
-                            
-                            // Immersive mode toggle
-                            immersiveToggle
+                            // Repositories title
+                            Text(Constants.Strings.repositories.localized)
+                                .font(.title.bold())
+                                .padding(.horizontal)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             
                             // Repositories grid
                             repositoriesSection
@@ -178,30 +176,24 @@ struct VisionOSUserProfileView: View {
                     }
                     .padding(Constants.Layout.contentPadding)
                 }
+                .coordinateSpace(name: "scroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                    withAnimation {
+                        showSearchBar = offset <= 5
+                    }
+                }
             }
-        }
-        .task {
-            viewModel.configureImmersiveSpaceUpdates()
         }
         .onChange(of: searchText) { _, newValue in
             viewModel.setSearchQuery(newValue)
         }
-        .onChange(of: selectedLanguageFilter) { _, newValue in
-            viewModel.setLanguageFilter(newValue)
-        }
-        .onChange(of: viewModel.isInImmersiveSpace) { _, isActive in
-            isImmersiveViewActive = isActive
-        }
         .onChange(of: viewModel.urlToOpen) { _, url in
             if let url = url {
-                openURL(url)
+                openURLAction(url)
             }
         }
         .sheet(isPresented: $viewModel.isShowingSearchHistory) {
             searchHistoryView
-        }
-        .immersiveSpace(id: "github_repo_space", isPresented: $isImmersiveViewActive) {
-            ImmersiveGitHubSpace(viewModel: viewModel)
         }
     }
     
@@ -237,38 +229,7 @@ struct VisionOSUserProfileView: View {
         }
         .padding()
         .background(.ultraThinMaterial)
-    }
-    
-    private var languageFilters: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Constants.Strings.repositories.localized)
-                .font(.title.bold())
-                .padding(.horizontal)
-            
-            VisionOSLanguageFilterView(
-                languages: viewModel.uniqueLanguages,
-                selectedLanguage: $selectedLanguageFilter
-            )
-        }
-    }
-    
-    private var immersiveToggle: some View {
-        HStack {
-            Button {
-                viewModel.toggleImmersiveMode()
-            } label: {
-                Label(
-                    isImmersiveViewActive ? 
-                        Constants.Strings.closeImmersive.localized : 
-                        Constants.Strings.toggleImmersive.localized,
-                    systemImage: isImmersiveViewActive ? Constants.Images.close : Constants.Images.vr
-                )
-                .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .tint(.blue)
-        }
-        .padding(.horizontal)
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
     
     private var repositoriesSection: some View {
@@ -277,8 +238,18 @@ struct VisionOSUserProfileView: View {
             VisionOSSearchBarView(
                 text: $searchText,
                 placeholder: Constants.Strings.searchRepositories.localized
-            )
+            ) {
+                // Ejecutar explícitamente la búsqueda cuando se envía
+                viewModel.setSearchQuery(searchText)
+            }
             .padding(.horizontal)
+            .background(GeometryReader { proxy in
+                Color.clear
+                    .preference(
+                        key: ScrollOffsetPreferenceKey.self,
+                        value: proxy.frame(in: .named("scroll")).minY
+                    )
+            })
             
             // Repositories grid or empty state
             if viewModel.filteredRepositoriesUI.isEmpty {
@@ -385,237 +356,25 @@ struct VisionOSUserProfileView: View {
     }
 }
 
-struct VisionOSRepositoryCardView: View {
-    let repository: Repository
-    let languageColor: (String) -> Color
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "book.closed")
-                    .font(.title3)
-                    .foregroundColor(.blue)
-                
-                Text(repository.name)
-                    .font(.title3.bold())
-                    .lineLimit(1)
-                
-                Spacer()
-                
-                HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-                    Text("\(repository.stargazersCount)")
-                        .font(.subheadline.bold())
-                }
-            }
-            
-            if let description = repository.description, !description.isEmpty {
-                Text(description)
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-            
-            HStack {
-                if let language = repository.language {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(languageColor(language))
-                            .frame(width: 12, height: 12)
-                        
-                        Text(language)
-                            .font(.subheadline)
-                    }
-                }
-                
-                Spacer()
-                
-                Text(repository.updatedAt.formatted(date: .abbreviated, time: .omitted))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.1), radius: 5)
-    }
-}
-
-struct VisionOSRepositoryDetailView: View {
-    let repository: Repository
-    let openURL: (URL) -> Void
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(repository.name)
-                            .font(.largeTitle.bold())
-                        
-                        if let language = repository.language {
-                            HStack {
-                                Circle()
-                                    .fill(languageColor(for: language))
-                                    .frame(width: 12, height: 12)
-                                Text(language)
-                                    .font(.headline)
-                            }
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                Divider()
-                
-                // Description
-                if let description = repository.description, !description.isEmpty {
-                    Text(description)
-                        .font(.title3)
-                }
-                
-                // Stats
-                HStack(spacing: 20) {
-                    VisionOSStatView(value: repository.stargazersCount, label: "Stars", icon: "star.fill", color: .yellow)
-                    VisionOSStatView(value: repository.forksCount, label: "Forks", icon: "tuningfork", color: .green)
-                    VisionOSStatView(value: repository.watchersCount, label: "Watchers", icon: "eye.fill", color: .blue)
-                }
-                .padding(.vertical)
-                
-                // Dates
-                VStack(alignment: .leading, spacing: 10) {
-                    VisionOSDateInfoRow(label: "Creado", date: repository.createdAt)
-                    VisionOSDateInfoRow(label: "Actualizado", date: repository.updatedAt)
-                }
-                .padding(.vertical)
-                
-                Divider()
-                
-                // Open in GitHub button
-                Button {
-                    openURL(repository.htmlURL)
-                } label: {
-                    HStack {
-                        Image(systemName: "safari")
-                        Text("Ver en GitHub")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(12)
-                }
-                .hoverEffect(.highlight)
-            }
-            .padding(24)
-        }
-    }
-    
-    private func languageColor(for language: String) -> Color {
-        switch language.lowercased() {
-        case "swift":
-            return .orange
-        case "javascript", "typescript":
-            return .yellow
-        case "python":
-            return .blue
-        case "kotlin":
-            return .purple
-        case "java":
-            return .red
-        case "c++", "c":
-            return .pink
-        case "ruby":
-            return .red
-        case "go":
-            return .cyan
-        case "rust":
-            return .brown
-        case "html":
-            return .orange
-        case "css":
-            return .blue
-        default:
-            return .gray
-        }
-    }
-}
-
-struct VisionOSStatView: View {
-    let value: Int
-    let label: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text("\(value)")
-                .font(.title2.bold())
-            
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(12)
-    }
-}
-
-struct VisionOSDateInfoRow: View {
-    let label: String
-    let date: Date
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(date.formatted(date: .long, time: .shortened))
-                .font(.headline)
-        }
-    }
-}
-
-// Extensión para obtener cadenas localizadas
-private extension String {
-    var localized: String {
-        NSLocalizedString(self, comment: "")
+// PreferenceKey para detectar el desplazamiento del scroll
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
 #Preview {
-    let viewModel = VisionOSUserProfileViewModel(manageSearchHistoryUseCase: nil, filterRepositoriesUseCase: nil, openURLUseCase: nil)
-    viewModel.userUI = UserUIModel.mock()
-    viewModel.repositoriesUI = [RepositoryUIModel.mock(), RepositoryUIModel.mock()]
+    let viewModel = VisionOSUserProfileViewModel(
+        manageSearchHistoryUseCase: nil, 
+        filterRepositoriesUseCase: nil, 
+        openURLUseCase: nil
+    )
+    
+    // Configuramos un estado con datos mock
+    let user = User.mock()
+    let repositories = [Repository.mock(), Repository.mock()]
+    viewModel.state = VisionOSViewState.loaded(user, repositories)
     
     return VisionOSUserProfileView(viewModel: viewModel)
 }

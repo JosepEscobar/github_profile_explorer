@@ -6,13 +6,10 @@ import SwiftUI
 public final class VisionOSUserProfileViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published public var username: String = ""
-    @Published public var state: ViewState = .initial
+    @Published public var state: VisionOSViewState = .initial
     @Published public var isShowingSearchHistory: Bool = false
     @Published public var searchHistory: [String] = []
-    @Published public var isInImmersiveSpace: Bool = false
-    @Published public var needsSceneUpdate: Bool = false
     @Published public var searchQuery: String = ""
-    @Published public var selectedLanguageFilter: String? = nil
     @Published public var urlToOpen: URL? = nil
     
     // MARK: - Computed Properties
@@ -33,18 +30,34 @@ public final class VisionOSUserProfileViewModel: ObservableObject {
     }
     
     public var filteredRepositoriesUI: [RepositoryUIModel] {
-        if !searchQuery.isEmpty || selectedLanguageFilter != nil {
-            return filterRepositoriesUseCase.filterBySearchTextAndLanguage(
-                repositories: repositoriesUI,
-                searchText: searchQuery,
-                language: selectedLanguageFilter
-            )
+        // Si no hay consulta de búsqueda, devolvemos todos los repositorios
+        if searchQuery.isEmpty {
+            return repositoriesUI
         }
-        return repositoriesUI
-    }
-    
-    public var uniqueLanguages: [String] {
-        return filterRepositoriesUseCase.extractUniqueLanguages(from: repositoriesUI)
+        
+        // Filtramos los repositorios por texto de búsqueda (términos múltiples)
+        let searchTerms = searchQuery.lowercased().split(separator: " ")
+        
+        return repositoriesUI.filter { repo in
+            let nameMatch = repo.name.lowercased().contains(searchQuery.lowercased())
+            let descriptionMatch = repo.description?.lowercased().contains(searchQuery.lowercased()) ?? false
+            
+            // Búsqueda general
+            if nameMatch || descriptionMatch {
+                return true
+            }
+            
+            // Búsqueda por términos múltiples
+            for term in searchTerms {
+                let termStr = String(term)
+                if repo.name.lowercased().contains(termStr) ||
+                   (repo.description?.lowercased().contains(termStr) ?? false) {
+                    return true
+                }
+            }
+            
+            return false
+        }
     }
     
     // MARK: - Use Cases
@@ -114,8 +127,8 @@ public final class VisionOSUserProfileViewModel: ObservableObject {
                 manageSearchHistoryUseCase?.addToSearchHistory(username: username, platform: .visionOS)
                 loadSearchHistory()
             } catch {
-                if let apiError = error as? APIError {
-                    state = .error(apiError)
+                if let appError = error as? AppError {
+                    state = .error(appError)
                 } else {
                     state = .error(.unexpectedError(error.localizedDescription))
                 }
@@ -136,20 +149,16 @@ public final class VisionOSUserProfileViewModel: ObservableObject {
         guard index < searchHistory.count else { return }
         
         let item = searchHistory[index]
-        manageSearchHistoryUseCase?.removeFromSearchHistory(username: item, platform: .visionOS)
+        manageSearchHistoryUseCase?.removeFromHistory(username: item, platform: .visionOS)
         loadSearchHistory()
     }
     
     public func toggleImmersiveMode() {
-        isInImmersiveSpace.toggle()
+        // Método eliminado, mantenido como vacío para compatibilidad
     }
     
     public func setSearchQuery(_ query: String) {
-        searchQuery = query
-    }
-    
-    public func setLanguageFilter(_ language: String?) {
-        selectedLanguageFilter = language
+        searchQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     public func openUserInGitHub() {
@@ -169,26 +178,33 @@ public final class VisionOSUserProfileViewModel: ObservableObject {
     
     // MARK: - Funcionalidad 3D
     
-    public func configureImmersiveSpaceUpdates() {
-        // Configurar observador para actualizaciones
-        Task { @MainActor in
-            for await _ in NotificationCenter.default.notifications(named: NSNotification.Name("UpdateImmersiveSpaceData")) {
-                self.needsSceneUpdate = true
-            }
-        }
-    }
-    
     public func createRootEntity() -> Entity {
-        // Usamos el factory para crear la entidad raíz
-        return VisionOSEntityFactory.createRootEntity(user: user, repositories: repositories)
+        // Método mantenido para compatibilidad
+        return Entity()
     }
 }
 
-// MARK: - Estados de la vista
-public enum ViewState {
+// MARK: - Estados de la vista para visionOS
+public enum VisionOSViewState: Equatable {
     case initial
     case loading
     case loaded(User, [Repository])
-    case error(APIError)
+    case error(AppError)
+    
+    public static func == (lhs: VisionOSViewState, rhs: VisionOSViewState) -> Bool {
+        switch (lhs, rhs) {
+        case (.initial, .initial):
+            return true
+        case (.loading, .loading):
+            return true
+        case (.error(let lhsError), .error(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.loaded(let lhsUser, let lhsRepos), .loaded(let rhsUser, let rhsRepos)):
+            return lhsUser.id == rhsUser.id &&
+                   lhsRepos.count == rhsRepos.count
+        default:
+            return false
+        }
+    }
 }
 #endif 

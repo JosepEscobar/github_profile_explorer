@@ -14,6 +14,7 @@ struct TVOSRepositoryCard: View {
             static let languageIndicatorSize: CGFloat = 12
             static let focusedScale: CGFloat = 1.05
             static let shadowRadius: CGFloat = 10
+            static let animationDuration: Double = 0.2
         }
         
         enum Colors {
@@ -118,7 +119,7 @@ struct TVOSRepositoryCard: View {
                 color: isFocused ? Constants.Colors.shadow : .clear,
                 radius: Constants.Layout.shadowRadius
             )
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
+            .animation(.easeInOut(duration: Constants.Layout.animationDuration), value: isFocused)
         }
         .buttonStyle(.tvCard)
     }

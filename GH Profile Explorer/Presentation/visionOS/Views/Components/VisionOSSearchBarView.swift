@@ -31,7 +31,7 @@ struct VisionOSSearchBarView: View {
     @Binding var text: String
     var placeholder: String
     var onSubmit: (() -> Void)? = nil
-    @State private var isFocused: Bool = false
+    @FocusState private var isFocused: Bool
     @State private var isClearButtonHovered: Bool = false
     
     var body: some View {
@@ -50,9 +50,10 @@ struct VisionOSSearchBarView: View {
                     onSubmit?()
                 }
                 .tint(.blue)
-                .onFocusChange { focused in
+                .focused($isFocused)
+                .onChange(of: isFocused) { _, newValue in
                     withAnimation(.easeInOut(duration: 0.2)) {
-                        isFocused = focused
+                        // No es necesario asignar isFocused aquí ya que cambia automáticamente
                     }
                 }
             
@@ -60,6 +61,7 @@ struct VisionOSSearchBarView: View {
             if !text.isEmpty {
                 Button {
                     text = ""
+                    onSubmit?()
                 } label: {
                     Image(systemName: Constants.Images.clear)
                         .font(.system(size: Constants.Layout.clearButtonSize))

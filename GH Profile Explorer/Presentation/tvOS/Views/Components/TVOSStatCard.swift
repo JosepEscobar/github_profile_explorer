@@ -15,6 +15,7 @@ struct StatCard: View {
             static let focusedScale: CGFloat = 1.05
             static let shadowRadius: CGFloat = 10
             static let contentPadding: CGFloat = 20
+            static let animationDuration: Double = 0.2
         }
         
         enum Colors {
@@ -68,7 +69,7 @@ struct StatCard: View {
         .scaleEffect(isFocused ? Constants.Layout.focusedScale : 1.0)
         .shadow(color: isFocused ? Constants.Colors.shadow : .clear, 
                 radius: Constants.Layout.shadowRadius)
-        .animation(.easeInOut(duration: 0.2), value: isFocused)
+        .animation(.easeInOut(duration: Constants.Layout.animationDuration), value: isFocused)
     }
 }
 

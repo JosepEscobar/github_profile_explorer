@@ -65,7 +65,7 @@ struct VisionOSErrorView: View {
                 .foregroundColor(Constants.Colors.icon)
                 .symbolEffect(.pulse)
             
-            Text(Constants.Strings.error.localized)
+            Text(NSLocalizedString(Constants.Strings.error, comment: ""))
                 .font(.title2.bold())
                 .foregroundColor(Constants.Colors.title)
             
@@ -76,7 +76,7 @@ struct VisionOSErrorView: View {
                 .padding(.horizontal)
             
             Button(action: retryAction) {
-                Text(Constants.Strings.retry.localized)
+                Text(NSLocalizedString(Constants.Strings.retry, comment: ""))
                     .padding(Constants.Layout.buttonPadding)
                     .background(Constants.Colors.buttonBackground)
                     .foregroundColor(Constants.Colors.buttonText)
@@ -91,19 +91,10 @@ struct VisionOSErrorView: View {
     }
 }
 
-// Extensión para obtener cadenas localizadas
-private extension String {
-    enum LoadingErrorStrings {
-        static let retry = "retry"
-        static let error = "error"
-    }
-    
-    static var retry: String { LoadingErrorStrings.retry }
-    static var error: String { LoadingErrorStrings.error }
-    
-    var localized: String {
-        NSLocalizedString(self, comment: "")
-    }
+// Valores constantes para strings comúnmente usadas
+private enum LoadingErrorStrings {
+    static let retry = "retry"
+    static let error = "error"
 }
 
 #Preview {

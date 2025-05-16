@@ -51,6 +51,9 @@ struct TVOSProfileView: View {
             static let backButtonPadding: CGFloat = 30
             static let viewAllButtonHeight: CGFloat = 60
             static let scrollViewTopPadding: CGFloat = 20
+            static let headerVerticalPadding: CGFloat = 20
+            static let repositoryGridSpacing: CGFloat = 24
+            static let repositoryMinWidth: CGFloat = 380
         }
         
         enum Colors {
@@ -331,8 +334,8 @@ struct TVOSProfileView: View {
                     .foregroundColor(Constants.Colors.username)
             }
         }
-        .padding(.top, 20)
-        .padding(.bottom, 20)
+        .padding(.top, Constants.Layout.headerVerticalPadding)
+        .padding(.bottom, Constants.Layout.headerVerticalPadding)
     }
     
     private var userStats: some View {
@@ -412,9 +415,9 @@ struct TVOSProfileView: View {
             // Grid de repositorios
             LazyVGrid(
                 columns: [
-                    GridItem(.adaptive(minimum: 380), spacing: 24)
+                    GridItem(.adaptive(minimum: Constants.Layout.repositoryMinWidth), spacing: Constants.Layout.repositoryGridSpacing)
                 ],
-                spacing: 24
+                spacing: Constants.Layout.repositoryGridSpacing
             ) {
                 ForEach(viewModel.repositoriesUI) { repo in
                     repositoryCard(repository: repo)

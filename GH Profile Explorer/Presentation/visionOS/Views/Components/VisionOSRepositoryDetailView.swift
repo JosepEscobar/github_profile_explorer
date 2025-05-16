@@ -43,6 +43,10 @@ struct VisionOSRepositoryDetailView: View {
     let openURL: (URL) -> Void
     @Environment(\.dismiss) private var dismiss
     
+    // Fechas estáticas para simular creación y actualización
+    private let createdDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+    private let updatedDate = Date()
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Constants.Layout.spacing) {
@@ -86,16 +90,40 @@ struct VisionOSRepositoryDetailView: View {
                 
                 // Stats
                 HStack(spacing: Constants.Layout.statsSpacing) {
-                    VisionOSStatView(value: repository.stars, label: Constants.Strings.stars.localized, icon: Constants.Images.star, color: Constants.Colors.star)
-                    VisionOSStatView(value: repository.forks, label: Constants.Strings.forks.localized, icon: Constants.Images.fork, color: Constants.Colors.fork)
-                    VisionOSStatView(value: repository.watchers, label: Constants.Strings.watchers.localized, icon: Constants.Images.watch, color: Constants.Colors.watch)
+                    VisionOSStatView(
+                        value: repository.stars, 
+                        label: NSLocalizedString(Constants.Strings.stars, comment: ""), 
+                        icon: Constants.Images.star, 
+                        color: Constants.Colors.star
+                    )
+                    
+                    VisionOSStatView(
+                        value: repository.forks, 
+                        label: NSLocalizedString(Constants.Strings.forks, comment: ""), 
+                        icon: Constants.Images.fork, 
+                        color: Constants.Colors.fork
+                    )
+                    
+                    VisionOSStatView(
+                        value: repository.watchers, 
+                        label: NSLocalizedString(Constants.Strings.watchers, comment: ""), 
+                        icon: Constants.Images.watch, 
+                        color: Constants.Colors.watch
+                    )
                 }
                 .padding(.vertical)
                 
                 // Dates
                 VStack(alignment: .leading, spacing: Constants.Layout.sectionSpacing) {
-                    VisionOSDateInfoRow(label: Constants.Strings.created.localized, date: repository.createdAt)
-                    VisionOSDateInfoRow(label: Constants.Strings.updated.localized, date: repository.updatedAt)
+                    VisionOSDateInfoRow(
+                        label: NSLocalizedString(Constants.Strings.created, comment: ""), 
+                        date: createdDate
+                    )
+                    
+                    VisionOSDateInfoRow(
+                        label: NSLocalizedString(Constants.Strings.updated, comment: ""), 
+                        date: updatedDate
+                    )
                 }
                 .padding(.vertical)
                 
@@ -108,7 +136,7 @@ struct VisionOSRepositoryDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: Constants.Images.browser)
-                        Text(Constants.Strings.viewOnGitHub.localized)
+                        Text(NSLocalizedString(Constants.Strings.viewOnGitHub, comment: ""))
                     }
                     .font(.headline)
                     .foregroundColor(Constants.Colors.buttonText)
@@ -185,13 +213,6 @@ struct VisionOSDateInfoRow: View {
             Text(date.formatted(date: .long, time: .shortened))
                 .font(.headline)
         }
-    }
-}
-
-// Extensión para obtener cadenas localizadas
-private extension String {
-    var localized: String {
-        NSLocalizedString(self, comment: "")
     }
 }
 

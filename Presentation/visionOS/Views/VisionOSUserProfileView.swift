@@ -46,6 +46,8 @@ struct VisionOSUserProfileView: View {
     @State private var searchText = ""
     @State private var selectedLanguageFilter: String? = nil
     @State private var isImmersiveViewActive = false
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
     var body: some View {
         ZStack {
@@ -105,8 +107,16 @@ struct VisionOSUserProfileView: View {
         .sheet(isPresented: $viewModel.isShowingSearchHistory) {
             searchHistoryView
         }
-        .immersiveSpace(id: "github_repo_space", isPresented: $isImmersiveViewActive) {
-            ImmersiveGitHubSpace(viewModel: viewModel)
+        .onChange(of: viewModel.isInImmersiveSpace) { _, isActive in
+            if isActive {
+                Task {
+                    _ = await openImmersiveSpace(id: ImmersiveSpaceRegistration.immersiveSpaceID)
+                }
+            } else {
+                Task {
+                    await dismissImmersiveSpace()
+                }
+            }
         }
     }
     
