@@ -1,0 +1,12 @@
+{
+  "id": 12345,
+  "login": "testuser",
+  "name": "Test User",
+  "avatar_url": "https://github.com/avatars/testuser.png",
+  "bio": "Software developer and open source enthusiast",
+  "followers": 100,
+  "following": 50,
+  "location": "San Francisco, CA",
+  "public_repos": 25,
+  "public_gists": 10
+} 
