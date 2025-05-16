@@ -10,7 +10,6 @@ public final class macOSUserProfileViewModel: UserProfileViewModel {
     @Published public var favoriteUsernames: [String] = []
     @Published public var urlToOpen: URL? = nil
     @Published public var searchHistory: [String] = []
-    
     @Published public var userUI: UserUIModel?
     @Published public var repositoriesUI: [RepositoryUIModel] = []
     

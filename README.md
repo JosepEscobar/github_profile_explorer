@@ -13,186 +13,186 @@
 </div>
 
 <p align="center">
-Una aplicación nativa y multiplataforma para explorar perfiles y repositorios de GitHub con interfaces optimizadas para cada plataforma Apple.
+A native and cross-platform application to explore GitHub profiles and repositories with optimized interfaces for each Apple platform.
 </p>
 
 ---
 
-## 📑 Contenido
+## 📑 Contents
 
-- [Características](#-características)
-- [Capturas de Pantalla](#-capturas-de-pantalla)
-- [Tecnologías](#-tecnologías)
-- [Arquitectura](#-arquitectura)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Patrones de Diseño](#-patrones-de-diseño)
-- [Requisitos](#-requisitos)
-- [Instalación y Uso](#-instalación-y-uso)
+- [Features](#-features)
+- [Screenshots](#-screenshots)
+- [Technologies](#-technologies)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Design Patterns](#-design-patterns)
+- [Requirements](#-requirements)
+- [Installation and Usage](#-installation-and-usage)
 - [Tests](#-tests)
-- [Notas de Implementación](#-notas-de-implementación)
-- [Detalles Técnicos](#-detalles-técnicos)
-- [Autor](#-autor)
-- [Licencia](#-licencia)
+- [Implementation Notes](#-implementation-notes)
+- [Technical Details](#-technical-details)
+- [Author](#-author)
+- [License](#-license)
 
-## 🚀 Características
+## 🚀 Features
 
-- **Multiplataforma**: Interfaces específicas y optimizadas para iOS, iPadOS, macOS, visionOS y tvOS
-- **Búsqueda de perfiles**: Consulta rápida de usuarios de GitHub
-- **Visualización de datos**: Información de usuario (nombre, foto, biografía, ubicación)
-- **Repositorios**: Lista detallada con información (nombre, descripción, lenguaje)
-- **Temas**: Soporte para modo oscuro y claro
-- **Características específicas por plataforma**:
-  - **iOS**: Historial de búsquedas, diseño compacto optimizado para móvil
-  - **iPadOS**: Layout adaptativo, SplitView optimizado, multitarea
-  - **macOS**: Gráfico estadístico de lenguajes, gestión de favoritos
-  - **tvOS**: Usuarios destacados, navegación adaptada a control remoto
-  - **visionOS**: Experiencia inmersiva con elementos 3D y efectos visuales
+- **Cross-platform**: Specific and optimized interfaces for iOS, iPadOS, macOS, visionOS, and tvOS
+- **Profile Search**: Quick lookup of GitHub users
+- **Data Visualization**: User information (name, photo, bio, location)
+- **Repositories**: Detailed list with information (name, description, language)
+- **Themes**: Support for dark and light mode
+- **Platform-specific features**:
+  - **iOS**: Search history, compact design optimized for mobile
+  - **iPadOS**: Adaptive layout, optimized SplitView, multitasking
+  - **macOS**: Language statistics chart, favorites management
+  - **tvOS**: Featured users, navigation adapted to remote control
+  - **visionOS**: Immersive experience with 3D elements and visual effects
 
-## 📱 Capturas de Pantalla
+## 📱 Screenshots
 
-*(Aquí se incluirían capturas de pantalla de las diferentes plataformas)*
+*(Screenshots of the different platforms would be included here)*
 
-## 🧰 Tecnologías
+## 🧰 Technologies
 
 <table>
   <tr>
     <td><b>Framework</b></td>
-    <td><b>Propósito</b></td>
+    <td><b>Purpose</b></td>
   </tr>
   <tr>
     <td>Swift 6</td>
-    <td>Lenguaje de programación principal</td>
+    <td>Main programming language</td>
   </tr>
   <tr>
     <td>SwiftUI</td>
-    <td>Framework de UI declarativo con diseños específicos por plataforma</td>
+    <td>Declarative UI framework with platform-specific designs</td>
   </tr>
   <tr>
     <td>Async/await</td>
-    <td>Manejo moderno de operaciones asíncronas</td>
+    <td>Modern asynchronous operations handling</td>
   </tr>
   <tr>
     <td>Kingfisher</td>
-    <td>Carga y caché eficiente de imágenes</td>
+    <td>Efficient image loading and caching</td>
   </tr>
   <tr>
     <td>Quick + Nimble</td>
-    <td>Framework para testing con sintaxis expresiva</td>
+    <td>Testing framework with expressive syntax</td>
   </tr>
   <tr>
     <td>Swift Package Manager</td>
-    <td>Gestión de dependencias y módulos</td>
+    <td>Dependency and module management</td>
   </tr>
   <tr>
     <td>RealityKit</td>
-    <td>Framework para experiencias 3D en visionOS</td>
+    <td>Framework for 3D experiences in visionOS</td>
   </tr>
 </table>
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
-El proyecto sigue una arquitectura **Clean MVVM Modular** que proporciona una clara separación de responsabilidades y facilita el mantenimiento y escalabilidad:
+The project follows a **Clean MVVM Modular** architecture that provides a clear separation of responsibilities and facilitates maintenance and scalability:
 
-### Capas
+### Layers
 
 <table>
   <tr>
-    <td><b>Capa</b></td>
-    <td><b>Responsabilidad</b></td>
+    <td><b>Layer</b></td>
+    <td><b>Responsibility</b></td>
   </tr>
   <tr>
     <td>Domain</td>
-    <td>Entidades de negocio, casos de uso e interfaces de repository</td>
+    <td>Business entities, use cases, and repository interfaces</td>
   </tr>
   <tr>
     <td>Data</td>
-    <td>Implementaciones concretas de repositorios, networking y mappers</td>
+    <td>Concrete implementations of repositories, networking, and mappers</td>
   </tr>
   <tr>
     <td>Presentation</td>
-    <td>ViewModels y Vistas específicos para cada plataforma</td>
+    <td>Platform-specific ViewModels and Views</td>
   </tr>
   <tr>
     <td>SharedUI</td>
-    <td>Componentes de UI compartidos entre plataformas</td>
+    <td>UI components shared across platforms</td>
   </tr>
 </table>
 
-### Principios
+### Principles
 
-- **Modularidad**: Capas separadas en módulos independientes
-- **Responsabilidad única**: Cada clase tiene una responsabilidad específica
-- **Inversión de dependencias**: Las dependencias apuntan hacia el dominio
-- **Independencia de frameworks**: El dominio no depende de frameworks externos
+- **Modularity**: Layers separated into independent modules
+- **Single Responsibility**: Each class has a specific responsibility
+- **Dependency Inversion**: Dependencies point towards the domain
+- **Framework Independence**: The domain does not depend on external frameworks
 
-## 🏗️ Estructura del Proyecto
+## 🏗️ Project Structure
 
-La organización del proyecto refleja la arquitectura modular:
+The project organization reflects the modular architecture:
 
-### Capa de Dominio
+### Domain Layer
 
-La **Capa de Dominio** es el núcleo de la aplicación, independiente de la plataforma y frameworks:
+The **Domain Layer** is the core of the application, platform and framework independent:
 
-- **Modelos**: Definen las estructuras de datos principales (`User`, `Repository`, `LanguageStat`, `AppError`)
-- **Casos de Uso**: Implementan la lógica de negocio (`FetchUserUseCase`, `ManageSearchHistoryUseCase`, `FilterRepositoriesUseCase`)
-- **Interfaces**: Definen protocolos para repositorios, asegurando una separación limpia entre la lógica y el acceso a datos
+- **Models**: Define the main data structures (`User`, `Repository`, `LanguageStat`, `AppError`)
+- **Use Cases**: Implement business logic (`FetchUserUseCase`, `ManageSearchHistoryUseCase`, `FilterRepositoriesUseCase`)
+- **Interfaces**: Define protocols for repositories, ensuring a clean separation between logic and data access
 
-### Capa de Datos
+### Data Layer
 
-La **Capa de Datos** gestiona el acceso a datos externos:
+The **Data Layer** manages access to external data:
 
-- **Repositorios**: Implementan la lógica de acceso a datos (`UserRepository`)
-- **API**: Contiene infraestructura de red (`NetworkClient`, `Endpoint`)
-- **Mappers**: Convierten datos entre diferentes capas (`UserMapper`, `RepositoryMapper`)
+- **Repositories**: Implement data access logic (`UserRepository`)
+- **API**: Contains network infrastructure (`NetworkClient`, `Endpoint`)
+- **Mappers**: Convert data between different layers (`UserMapper`, `RepositoryMapper`)
 
-### Capa de Presentación
+### Presentation Layer
 
-La **Capa de Presentación** está dividida en subcapas específicas para cada plataforma:
+The **Presentation Layer** is divided into platform-specific sublayers:
 
-- **iOS**: Vistas y ViewModels adaptados para dispositivos móviles
-- **iPadOS**: Interfaces optimizadas para tablet con layouts adaptativos
-- **macOS**: Experiencia de escritorio con funcionalidades avanzadas
-- **tvOS**: Navegación adaptada a control remoto y pantallas grandes
-- **visionOS**: Experiencias inmersivas con elementos 3D y RealityKit
+- **iOS**: Views and ViewModels adapted for mobile devices
+- **iPadOS**: Interfaces optimized for tablets with adaptive layouts
+- **macOS**: Desktop experience with advanced features
+- **tvOS**: Navigation adapted to remote control and large screens
+- **visionOS**: Immersive experiences with 3D elements and RealityKit
 
 ### SharedUI
 
-Contiene componentes de UI reutilizables y modelos que se comparten entre plataformas:
+Contains reusable UI components and models shared across platforms:
 
-- **Components**: Vistas comunes como `SearchBarView`, `AvatarImageView` y `LoadingView`
-- **UIModels**: Modelos de presentación compartidos
-- **ViewModels**: Lógica de presentación común
+- **Components**: Common views like `SearchBarView`, `AvatarImageView`, and `LoadingView`
+- **UIModels**: Shared presentation models
+- **ViewModels**: Common presentation logic
 
-## 🔍 Patrones de Diseño
+## 🔍 Design Patterns
 
 <table>
   <tr>
-    <td><b>Patrón</b></td>
-    <td><b>Implementación</b></td>
+    <td><b>Pattern</b></td>
+    <td><b>Implementation</b></td>
   </tr>
   <tr>
     <td>Repository Pattern</td>
-    <td>Abstrae el acceso a datos y oculta la implementación de API</td>
+    <td>Abstracts data access and hides API implementation</td>
   </tr>
   <tr>
     <td>Use Case Pattern</td>
-    <td>Encapsula la lógica de negocio en clases independientes y reutilizables</td>
+    <td>Encapsulates business logic in independent and reusable classes</td>
   </tr>
   <tr>
     <td>MVVM</td>
-    <td>Separa la lógica de presentación (ViewModel) de la visualización (View)</td>
+    <td>Separates presentation logic (ViewModel) from visualization (View)</td>
   </tr>
   <tr>
     <td>Dependency Injection</td>
-    <td>Inyecta dependencias en lugar de crearlas dentro de las clases</td>
+    <td>Injects dependencies instead of creating them within classes</td>
   </tr>
   <tr>
     <td>Factory Method</td>
-    <td>Crea instancias específicas según la plataforma</td>
+    <td>Creates specific instances according to the platform</td>
   </tr>
 </table>
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
 - Xcode 15.0+
 - Swift 6.0+
@@ -202,54 +202,54 @@ Contiene componentes de UI reutilizables y modelos que se comparten entre plataf
 - tvOS 17.0+
 - visionOS 1.0+
 
-## 🚧 Instalación y Uso
+## 🚧 Installation and Usage
 
-1. Clona el repositorio:
+1. Clone the repository:
    ```bash
    git clone https://github.com/username/github-profile-explorer.git
    ```
 
-2. Abre el proyecto en Xcode:
+2. Open the project in Xcode:
    ```bash
    open "GH Profile Explorer.xcodeproj"
    ```
 
-3. Selecciona el esquema deseado (iOS, iPadOS, macOS, tvOS o visionOS)
+3. Select the desired scheme (iOS, iPadOS, macOS, tvOS, or visionOS)
 
-4. Compila y ejecuta la aplicación (⌘+R)
+4. Build and run the application (⌘+R)
 
 ## 🧪 Tests
 
-El proyecto incluye una suite completa de tests con Quick y Nimble:
+The project includes a complete test suite with Quick and Nimble:
 
-- **Tests unitarios** para casos de uso y lógica de negocio
-- **Tests de integración** para repositorios y capa de datos
-- **Tests de mappers** para validar la transformación de datos
+- **Unit tests** for use cases and business logic
+- **Integration tests** for repositories and data layer
+- **Mapper tests** to validate data transformation
 
-Para ejecutar los tests:
+To run the tests:
 
-1. Selecciona el esquema de test adecuado
-2. Ejecuta los tests con ⌘+U
+1. Select the appropriate test scheme
+2. Run the tests with ⌘+U
 
-## 📝 Notas de Implementación
+## 📝 Implementation Notes
 
-- **Swift Concurrency**: Uso de async/await para operaciones asíncronas en lugar de Combine
-- **Componentización**: Componentes pequeños y reutilizables para mantener un código limpio
-- **Diseño adaptativo**: Interfaces que se adaptan a diferentes tamaños de pantalla
-- **Localización**: Sistema completo de localización para soportar múltiples idiomas
-- **Modo oscuro**: Soporte completo para temas claro y oscuro en todas las plataformas
+- **Swift Concurrency**: Use of async/await for asynchronous operations instead of Combine
+- **Componentization**: Small and reusable components to maintain clean code
+- **Adaptive Design**: Interfaces that adapt to different screen sizes
+- **Localization**: Complete localization system to support multiple languages
+- **Dark Mode**: Full support for light and dark themes across all platforms
 
-## 🧩 Detalles Técnicos
+## 🧩 Technical Details
 
-1. **GitHub API**: Se utiliza la API pública de GitHub (v3)
-2. **Caché de imágenes**: Kingfisher para gestión eficiente y descarga asíncrona
-3. **Error handling**: Sistema de errores tipados y localización para una mejor experiencia de usuario
-4. **Adaptabilidad**: Interfaces optimizadas por plataforma aprovechando características únicas de cada una
+1. **GitHub API**: Uses the public GitHub API (v3)
+2. **Image Cache**: Kingfisher for efficient management and asynchronous download
+3. **Error handling**: Typed error system and localization for a better user experience
+4. **Adaptability**: Platform-optimized interfaces leveraging unique features of each
 
-## 🧑‍💻 Autor
+## 🧑‍💻 Author
 
 **Jose Escobar** - iOS Engineer
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles. 
+This project is under the MIT License. See the `LICENSE` file for more details. 

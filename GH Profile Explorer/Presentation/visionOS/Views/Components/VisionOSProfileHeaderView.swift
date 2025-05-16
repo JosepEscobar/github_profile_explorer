@@ -51,10 +51,9 @@ struct VisionOSProfileHeaderView: View {
         VStack(spacing: Constants.Layout.spacing) {
             // Avatar and name
             HStack(spacing: Constants.Layout.spacing) {
-                VisionOSAvatarImageView(
+                VisionOSAvatarView(
                     url: user.avatarURL,
-                    size: Constants.Layout.avatarSize,
-                    cornerRadius: Constants.Layout.avatarCornerRadius
+                    size: Constants.Layout.avatarSize
                 )
                 .overlay(
                     Circle()
