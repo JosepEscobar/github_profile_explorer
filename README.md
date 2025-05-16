@@ -56,16 +56,16 @@ A native and cross-platform application to explore GitHub profiles and repositor
 <div align="center">
   <table>
     <tr>
-      <td align="center"><b>Búsqueda (Modo Claro)</b></td>
-      <td align="center"><b>Búsqueda (Modo Oscuro)</b></td>
+      <td align="center"><b>Search (Light Mode)</b></td>
+      <td align="center"><b>Search (Dark Mode)</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/iphone_search_light.png" alt="iOS Search - Light Mode" width="300"/></td>
       <td><img src=".github/images/iphone_search_dark.png" alt="iOS Search - Dark Mode" width="300"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Perfil (Modo Claro)</b></td>
-      <td align="center"><b>Perfil (Modo Oscuro)</b></td>
+      <td align="center"><b>Profile (Light Mode)</b></td>
+      <td align="center"><b>Profile (Dark Mode)</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/iphone_profile_light.png" alt="iOS Profile - Light Mode" width="300"/></td>
@@ -74,12 +74,12 @@ A native and cross-platform application to explore GitHub profiles and repositor
   </table>
 </div>
 
-**Características destacadas:**
-* Interfaz compacta optimizada para pantallas de iPhone
-* Historial de búsqueda integrado para acceso rápido a perfiles consultados previamente
-* Transiciones fluidas entre pantallas con animaciones naturales
-* Soporte completo para modo oscuro con cambios elegantes en la paleta de colores
-* Vista de perfil que presenta información esencial del desarrollador y sus repositorios más populares
+**Key Features:**
+* Compact interface optimized for iPhone screens
+* Integrated search history for quick access to previously viewed profiles
+* Smooth transitions between screens with natural animations
+* Full support for dark mode with elegant color palette changes
+* Profile view presenting essential developer information and their most popular repositories
 
 ### 📱 iPad
 
@@ -89,29 +89,29 @@ A native and cross-platform application to explore GitHub profiles and repositor
       <td><img src=".github/images/ipad_sidebar.png" alt="iPad Sidebar" width="700"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Navegación con Barra Lateral</b></td>
+      <td align="center"><b>Sidebar Navigation</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/ipad_profile.png" alt="iPad Profile" width="700"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Vista de Perfil (Modo Oscuro)</b></td>
+      <td align="center"><b>Profile View (Dark Mode)</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/ipad_profile_light.png" alt="iPad Profile - Light Mode" width="700"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Vista de Perfil (Modo Claro)</b></td>
+      <td align="center"><b>Profile View (Light Mode)</b></td>
     </tr>
   </table>
 </div>
 
-**Características destacadas:**
-* Diseño adaptativo que aprovecha al máximo el espacio en pantalla de iPad
-* Barra lateral para navegación rápida entre perfiles y funcionalidades
-* Interfaz dividida (SplitView) que permite visualizar listas y detalles simultáneamente
-* Optimización para Apple Pencil con áreas interactivas mejoradas
-* Soporte para multitarea con Slide Over y Split View
+**Key Features:**
+* Adaptive design that maximizes the iPad screen space
+* Sidebar for quick navigation between profiles and features
+* Split view interface that allows viewing lists and details simultaneously
+* Optimized for Apple Pencil with enhanced interactive areas
+* Support for multitasking with Slide Over and Split View
 
 ### 💻 macOS
 
@@ -121,29 +121,29 @@ A native and cross-platform application to explore GitHub profiles and repositor
       <td><img src=".github/images/mac_profile.png" alt="macOS Profile" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Vista de Perfil</b></td>
+      <td align="center"><b>Profile View</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/mac_repos.png" alt="macOS Repositories" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Lista de Repositorios</b></td>
+      <td align="center"><b>Repository List</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/mac_stats.png" alt="macOS Statistics" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Estadísticas de Lenguajes</b></td>
+      <td align="center"><b>Language Statistics</b></td>
     </tr>
   </table>
 </div>
 
-**Características destacadas:**
-* Experiencia nativa de macOS con menús, atajos de teclado y controles nativos
-* Visualización avanzada de estadísticas con gráficos detallados de distribución de lenguajes
-* Sistema de gestión de favoritos para acceso rápido a perfiles frecuentes
-* Diseño adaptado a pantallas de alta resolución con escalado inteligente
-* Soporte para drag & drop para interacciones avanzadas con contenido
+**Key Features:**
+* Native macOS experience with menus, keyboard shortcuts, and native controls
+* Advanced statistics visualization with detailed language distribution charts
+* Favorites management system for quick access to frequent profiles
+* Design adapted to high-resolution displays with intelligent scaling
+* Support for drag & drop for advanced content interactions
 
 ### 📺 Apple TV
 
@@ -153,29 +153,29 @@ A native and cross-platform application to explore GitHub profiles and repositor
       <td><img src=".github/images/apple_tv_home.png" alt="Apple TV Home" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Pantalla de Inicio</b></td>
+      <td align="center"><b>Home Screen</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/apple_tv_repos.png" alt="Apple TV Repositories" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Lista de Repositorios</b></td>
+      <td align="center"><b>Repository List</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/apple_tv_profile.png" alt="Apple TV Profile" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Vista de Perfil</b></td>
+      <td align="center"><b>Profile View</b></td>
     </tr>
   </table>
 </div>
 
-**Características destacadas:**
-* Interfaz optimizada para control remoto de Apple TV con navegación intuitiva
-* Destacados con desarrolladores populares y repositorios tendencia
-* Transiciones cinemáticas entre secciones para una experiencia fluida
-* Diseño de 10 pies que garantiza buena legibilidad desde la distancia
-* Modo de presentación para mostrar perfiles en pantallas grandes durante reuniones
+**Key Features:**
+* Interface optimized for Apple TV remote control with intuitive navigation
+* Featured developers and trending repositories
+* Cinematic transitions between sections for a fluid experience
+* 10-foot design ensuring good readability from a distance
+* Presentation mode for displaying profiles on large screens during meetings
 
 ### 👓 Apple Vision Pro
 
@@ -185,29 +185,29 @@ A native and cross-platform application to explore GitHub profiles and repositor
       <td><img src=".github/images/apple_vision_search.png" alt="Vision Pro Search" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Búsqueda Inmersiva</b></td>
+      <td align="center"><b>Immersive Search</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/apple_vision_profile.png" alt="Vision Pro Profile" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Vista de Perfil</b></td>
+      <td align="center"><b>Profile View</b></td>
     </tr>
     <tr>
       <td><img src=".github/images/apple_vision_repo_open.png" alt="Vision Pro Repository" width="800"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Detalle de Repositorio</b></td>
+      <td align="center"><b>Repository Detail</b></td>
     </tr>
   </table>
 </div>
 
-**Características destacadas:**
-* Experiencia inmersiva con elementos 3D y efectos visuales avanzados
-* Navegación mediante gestos y seguimiento ocular integrado
-* Visualización de código con efectos de profundidad y perspectiva
-* Espacios virtuales dedicados para diferentes perfiles y proyectos
-* Integración con RealityKit para presentar repositorios como estructuras tridimensionales explorablesº
+**Key Features:**
+* Immersive experience with 3D elements and advanced visual effects
+* Navigation through gestures and integrated eye tracking
+* Code visualization with depth and perspective effects
+* Dedicated virtual spaces for different profiles and projects
+* RealityKit integration to present repositories as explorable three-dimensional structures
 
 ## 🧰 Technologies
 
@@ -407,11 +407,11 @@ To run the tests:
 **Jose Escobar** - iOS Engineer
 
 ## 🙏 Acknowledgments
-
+<br>
 <div align="center">
 <img src="https://img.shields.io/badge/Made%20with%20Passion%20%26%20Precision-FF9500?style=for-the-badge&logo=swift&logoColor=white" />
 </div>
-
+<br>
 This project is the culmination of my 14 years of experience as an iOS Developer. It represents the knowledge, skills, and expertise I've developed throughout my professional career. Every aspect of this application—from architecture to UI design—was personally crafted by me as a demonstration of my capabilities across Apple's platforms.
 
 While this was a solo project, I'd like to acknowledge the resources and technologies that have influenced my development approach over the years:
@@ -474,10 +474,11 @@ While this was a solo project, I'd like to acknowledge the resources and technol
 
 ### Resources and References
 
+<br>
 <div align="center">
 <img src="https://img.shields.io/badge/Standing%20on%20the%20Shoulders%20of%20Giants-5A45FF?style=for-the-badge&logo=github&logoColor=white" />
 </div>
-
+<br>
 - **Technical Articles**: Publications from [objc.io](https://www.objc.io), [NSHipster](https://nshipster.com), and [Swift with Majid](https://swiftwithmajid.com) were invaluable resources for implementing advanced SwiftUI patterns and architecture.
 
 - **Podcasts**: [Swift by Sundell](https://www.swiftbysundell.com/podcast/), [Swift Unwrapped](https://spec.fm/podcasts/swift-unwrapped), and [Inside iOS Dev](https://insideiosdev.com) provided deep insights into development best practices.
