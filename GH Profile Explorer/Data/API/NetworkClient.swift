@@ -1,13 +1,19 @@
 import Foundation
 
+public protocol URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {}
+
 public protocol NetworkClientProtocol {
     func fetch<T: Decodable>(endpoint: Endpoint) async throws -> T
 }
 
 public final class NetworkClient: NetworkClientProtocol {
-    private let urlSession: URLSession
+    private let urlSession: URLSessionProtocol
     
-    public init(urlSession: URLSession = .shared) {
+    public init(urlSession: URLSessionProtocol = URLSession.shared) {
         self.urlSession = urlSession
     }
     
