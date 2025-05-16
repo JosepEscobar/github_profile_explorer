@@ -27,25 +27,32 @@ struct TVOSHomeView: View {
             static let mainSpacing: CGFloat = 40
             static let titleSpacing: CGFloat = 20
             static let headerTopPadding: CGFloat = 60
-            static let searchHorizontalPadding: CGFloat = 100
+            static let searchHorizontalPadding: CGFloat = 60
             static let searchItemSpacing: CGFloat = 20
-            static let sectionSpacing: CGFloat = 30
+            static let sectionSpacing: CGFloat = 40
+            static let sectionItemSpacing: CGFloat = 24
             static let logoSize: CGFloat = 100
             static let menuHorizontalSpacing: CGFloat = 40
             static let menuBottomPadding: CGFloat = 60
-            static let searchFieldPaddingH: CGFloat = 20
-            static let searchFieldPaddingV: CGFloat = 15
-            static let searchFieldCornerRadius: CGFloat = 8
-            static let searchFieldBorderWidth: CGFloat = 4
+            static let searchFieldPaddingH: CGFloat = 25
+            static let searchFieldPaddingV: CGFloat = 20
+            static let searchFieldCornerRadius: CGFloat = 10
+            static let searchFieldBorderWidth: CGFloat = 5
+            static let searchFieldHeight: CGFloat = 80
+            static let searchButtonWidth: CGFloat = 200
             static let delayOnAppear: Double = 0.5
+            static let sectionTitlePadding: CGFloat = 40
         }
         
         enum Colors {
             static let gradientStart = Color.blue.opacity(0.2)
             static let gradientEnd = Color.black
-            static let searchFieldBackground = Color.black.opacity(0.5)
+            static let searchFieldBackground = Color.black.opacity(0.7)
             static let searchFieldBorder = Color.white
+            static let searchFieldText = Color.white
+            static let searchFieldPlaceholder = Color.gray.opacity(0.7)
             static let errorBackground = Color.black.opacity(0.7)
+            static let sectionTitle = Color.white.opacity(0.9)
         }
     }
     
@@ -81,7 +88,7 @@ struct TVOSHomeView: View {
                     .background(Constants.Colors.errorBackground)
                 }
             }
-            .navigationTitle(Constants.Strings.appTitle.localized)
+            .navigationTitle("")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -118,10 +125,6 @@ struct TVOSHomeView: View {
         VStack(spacing: Constants.Layout.mainSpacing) {
             // Logo and title
             VStack(spacing: Constants.Layout.titleSpacing) {
-                Image(systemName: Constants.Images.logo)
-                    .font(.system(size: Constants.Layout.logoSize))
-                    .foregroundColor(.white)
-                
                 Text(Constants.Strings.appTitle.localized)
                     .font(.largeTitle)
                     .fontWeight(.bold)
@@ -133,47 +136,54 @@ struct TVOSHomeView: View {
             VStack(spacing: Constants.Layout.sectionSpacing) {
                 // Search bar
                 HStack(spacing: Constants.Layout.searchItemSpacing) {
-                    TextField(Constants.Strings.searchPlaceholder.localized, text: $viewModel.username)
-                        .textFieldStyle(.plain)
-                        .padding(.horizontal, Constants.Layout.searchFieldPaddingH)
-                        .padding(.vertical, Constants.Layout.searchFieldPaddingV)
-                        .background(
-                            RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
-                                .fill(Constants.Colors.searchFieldBackground)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
-                                        .stroke(
-                                            focusedSection == .search ? Constants.Colors.searchFieldBorder : Color.clear, 
-                                            lineWidth: Constants.Layout.searchFieldBorderWidth
-                                        )
-                                )
-                        )
-                        .focused($focusedSection, equals: .search)
-                        .onChange(of: focusedSection) { oldValue, newValue in
-                            if newValue == .search {
-                                viewModel.selectedSection = .search
-                            }
+                    HStack {
+                        Image(systemName: Constants.Images.search)
+                            .font(.system(size: 24))
+                            .foregroundColor(focusedSection == .search ? Constants.Colors.searchFieldText : Constants.Colors.searchFieldPlaceholder)
+                            .padding(.leading, Constants.Layout.searchFieldPaddingH)
+                        
+                        TextField(Constants.Strings.searchPlaceholder.localized, text: $viewModel.username)
+                            .textFieldStyle(.plain)
+                            .font(.title3)
+                            .foregroundColor(Constants.Colors.searchFieldText)
+                            .padding(.vertical, Constants.Layout.searchFieldPaddingV)
+                    }
+                    .frame(height: Constants.Layout.searchFieldHeight)
+                    .background(
+                        RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
+                            .fill(Constants.Colors.searchFieldBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: Constants.Layout.searchFieldCornerRadius)
+                                    .stroke(
+                                        focusedSection == .search ? Constants.Colors.searchFieldBorder : Color.clear, 
+                                        lineWidth: Constants.Layout.searchFieldBorderWidth
+                                    )
+                            )
+                    )
+                    .focused($focusedSection, equals: .search)
+                    .onChange(of: focusedSection) { oldValue, newValue in
+                        if newValue == .search {
+                            viewModel.selectedSection = .search
                         }
-                        .onSubmit {
-                            viewModel.fetchUserProfile()
-                        }
-                    
-                    TVOSSearchButton {
+                    }
+                    .onSubmit {
                         viewModel.fetchUserProfile()
                     }
-                    .focused($focusedSection, equals: .search)
+                    .scaleEffect(focusedSection == .search ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.3), value: focusedSection == .search)
                 }
                 .padding(.horizontal, Constants.Layout.searchHorizontalPadding)
                 
                 // Featured users
-                VStack(alignment: .leading, spacing: Constants.Layout.titleSpacing) {
+                VStack(alignment: .leading, spacing: Constants.Layout.sectionItemSpacing) {
                     Text(Constants.Strings.featuredUsers.localized.uppercased())
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Constants.Colors.sectionTitle)
+                        .padding(.horizontal, Constants.Layout.sectionTitlePadding)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Constants.Layout.sectionSpacing) {
+                        HStack(spacing: Constants.Layout.sectionItemSpacing) {
                             ForEach(viewModel.featuredUsers, id: \.self) { username in
                                 TVOSFeaturedUserButton(username: username) {
                                     viewModel.selectFeaturedUser(username)
@@ -186,17 +196,20 @@ struct TVOSHomeView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, Constants.Layout.sectionTitlePadding)
+                        .padding(.vertical, 16)
                     }
+                    .padding(.bottom, 10)
                 }
                 
                 // Recent searches
                 if !viewModel.recentSearches.isEmpty {
-                    VStack(alignment: .leading, spacing: Constants.Layout.titleSpacing) {
+                    VStack(alignment: .leading, spacing: Constants.Layout.sectionItemSpacing) {
                         HStack {
                             Text(Constants.Strings.recentSearches.localized.uppercased())
-                                .font(.headline)
-                                .foregroundColor(.white)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Constants.Colors.sectionTitle)
                             
                             Spacer()
                             
@@ -204,7 +217,7 @@ struct TVOSHomeView: View {
                                 viewModel.clearRecentSearches()
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, Constants.Layout.sectionTitlePadding)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: Constants.Layout.searchItemSpacing) {
@@ -221,8 +234,10 @@ struct TVOSHomeView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, Constants.Layout.sectionTitlePadding)
+                            .padding(.vertical, 20)
                         }
+                        .padding(.bottom, 20)
                     }
                 }
             }

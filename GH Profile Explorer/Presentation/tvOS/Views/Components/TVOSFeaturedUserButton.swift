@@ -4,22 +4,24 @@ import SwiftUI
 struct TVOSFeaturedUserButton: View {
     private enum Constants {
         enum Layout {
-            static let spacing: CGFloat = 15
-            static let avatarSize: CGFloat = 140
-            static let avatarCornerRadius: CGFloat = 70
-            static let width: CGFloat = 180
-            static let height: CGFloat = 220
-            static let borderWidth: CGFloat = 4
-            static let focusScaleEffect: CGFloat = 1.1
-            static let shadowRadius: CGFloat = 15
-            static let defaultShadowRadius: CGFloat = 5
+            static let spacing: CGFloat = 8
+            static let avatarSize: CGFloat = 100
+            static let avatarCornerRadius: CGFloat = 50
+            static let width: CGFloat = 280
+            static let height: CGFloat = 160
+            static let borderWidth: CGFloat = 3
+            static let focusScaleEffect: CGFloat = 1.05
+            static let shadowRadius: CGFloat = 12
+            static let defaultShadowRadius: CGFloat = 6
+            static let usernameTopPadding: CGFloat = 8
         }
         
         enum Colors {
-            static let shadow = Color.blue.opacity(0.5)
+            static let shadow = Color.blue.opacity(0.6)
             static let border = Color.white
             static let fallbackIcon = Color.gray
             static let username = Color.white
+            static let background = Color.black.opacity(0.3)
         }
         
         enum Images {
@@ -39,6 +41,7 @@ struct TVOSFeaturedUserButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: Constants.Layout.spacing) {
+                // Avatar image
                 ZStack {
                     if let url = URL(string: Constants.URLs.githubAvatarBase + username + Constants.URLs.avatarSuffix) {
                         AvatarImageView(
@@ -64,11 +67,18 @@ struct TVOSFeaturedUserButton: View {
                         .stroke(Constants.Colors.border, lineWidth: focused ? Constants.Layout.borderWidth : 0)
                 )
                 
+                // Username text
                 Text(username)
-                    .font(.title2)
+                    .font(.headline)
+                    .fontWeight(.medium)
                     .foregroundColor(Constants.Colors.username)
+                    .lineLimit(1)
             }
             .frame(width: Constants.Layout.width, height: Constants.Layout.height)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(focused ? Constants.Colors.background : Color.clear)
+            )
             .scaleEffect(focused ? Constants.Layout.focusScaleEffect : 1.0)
             .animation(.spring(), value: focused)
         }

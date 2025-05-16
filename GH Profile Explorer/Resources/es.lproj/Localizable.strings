@@ -13,9 +13,11 @@
 "app_title" = "GitHub Profile Explorer";
 "app_subtitle" = "Busca perfiles de desarrolladores en GitHub";
 "search_placeholder" = "Buscar usuario";
+"search_github_user" = "Buscar usuario de GitHub";
 "search_button" = "Buscar";
 "loading_user" = "Buscando usuario...";
 "recent_searches" = "Búsquedas recientes";
+"featured_users" = "Usuarios Destacados";
 "footer_text" = "Desarrollado con 💙 usando";
 "default_error" = "Ha ocurrido un error";
 

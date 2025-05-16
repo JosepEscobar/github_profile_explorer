@@ -135,7 +135,7 @@ struct TVOSProfileView: View {
             }
             .focusScope(namespace)
             .navigationBarBackButtonHidden(true)
-            .navigationTitle(Constants.Strings.appTitle.localized)
+            .navigationTitle("")
             .ignoresSafeArea()
             .onMoveCommand { direction in
                 handleMoveCommand(direction: direction)

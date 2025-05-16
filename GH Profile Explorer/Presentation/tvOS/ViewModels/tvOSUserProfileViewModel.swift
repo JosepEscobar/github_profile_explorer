@@ -6,7 +6,7 @@ public final class tvOSUserProfileViewModel: UserProfileViewModel {
     private enum Constants {
         enum Featured {
             static let defaultUsers = [
-                "apple", "google", "microsoft", "facebook",
+                "apple", "josepescobar", "microsoft", "facebook",
                 "netflix", "amazon", "spotify", "swift"
             ]
         }
